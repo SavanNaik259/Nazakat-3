@@ -15,7 +15,7 @@
     padding: 0 20px;
     max-width: 1200px;
     margin: 0 auto;
-    height: 70px; /* Normal navigation height */
+    height: 60px; /* Reduced navigation height */
 }
 
 /* Brand/Logo */
@@ -40,7 +40,7 @@
 }
 
 .brand-logo {
-    height: 50px;
+    height: 45px;
     width: auto;
     max-width: 180px;
     object-fit: contain;
@@ -108,7 +108,7 @@
     text-decoration: none;
     font-size: 12px; /* Decreased font size */
     font-weight: 500;
-    padding: 25px 5px;
+    padding: 20px 5px;
     display: block;
     text-transform: uppercase;
     letter-spacing: 0.5px;
