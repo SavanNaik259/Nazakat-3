@@ -25,11 +25,8 @@
     font-family: 'Playfair Display', serif;
     color: #8b704c;
     text-decoration: none;
-    margin-right: 20px;
-    margin-left: 15px;
-    margin-bottom: 4px;
-    margin-top: 6px;
-    padding-bottom: 3px;
+    margin: 0 20px 0 15px;
+    padding: 0;
     min-width: 150px;
     order: 0;
     position: relative;
@@ -37,6 +34,7 @@
     letter-spacing: 1px;
     display: flex;
     align-items: center;
+    height: 45px;
 }
 
 .brand-logo {
@@ -64,7 +62,7 @@
     height: 30px;
     position: relative;
     margin-right: 15px;
-    margin-top: 8px;
+    margin-top: 0;
     background: transparent;
     border: none;
     padding: 0;
@@ -89,6 +87,8 @@
     flex: 1;
     display: flex;
     justify-content: center;
+    align-items: center;
+    height: 45px;
 }
 
 .nav-list {
@@ -108,8 +108,10 @@
     text-decoration: none;
     font-size: 12px; /* Decreased font size */
     font-weight: 500;
-    padding: 15px 5px;
-    display: block;
+    padding: 0 5px;
+    display: flex;
+    align-items: center;
+    height: 45px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     transition: color 0.3s ease;
@@ -246,6 +248,7 @@
 .nav-icons {
     display: flex;
     align-items: center;
+    height: 45px;
 }
 
 .icon-link {
@@ -255,6 +258,9 @@
     text-decoration: none;
     transition: color 0.3s ease;
     position: relative; /* For positioning badges/counts */
+    display: flex;
+    align-items: center;
+    height: 45px;
 }
 
 .icon-link:hover {
@@ -302,8 +308,9 @@
     }
 
     .nav-link {
-        padding: 15px 3px; /* Adjusted padding for 45px navbar */
+        padding: 0 3px; /* Remove vertical padding for proper centering */
         font-size: 11px; /* Smaller font size */
+        height: 45px; /* Match navbar height */
     }
 
     .icon-link {
