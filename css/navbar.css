@@ -12,10 +12,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 20px;
+    padding: 10px 20px; /* Added top and bottom padding for spacing */
     max-width: 1200px;
     margin: 0 auto;
-    height: 45px; /* Set navbar height to 45px */
+    height: 65px; /* Increased navbar height to accommodate spacing */
 }
 
 /* Brand/Logo */
@@ -27,9 +27,9 @@
     text-decoration: none;
     margin-right: 20px;
     margin-left: 15px;
-    margin-bottom: 4px;
-    margin-top: 6px;
-    padding-bottom: 3px;
+    margin-bottom: 0; /* Removed bottom margin */
+    margin-top: 0; /* Removed top margin */
+    padding: 8px 0; /* Added vertical padding for consistent spacing */
     min-width: 150px;
     order: 0;
     position: relative;
@@ -64,10 +64,10 @@
     height: 30px;
     position: relative;
     margin-right: 15px;
-    margin-top: 8px;
+    margin-top: 0; /* Removed top margin */
     background: transparent;
     border: none;
-    padding: 0;
+    padding: 8px 0; /* Added vertical padding for consistent spacing */
     z-index: 1000; /* Ensure it's above other elements */
     display: flex;
     align-items: center;
@@ -108,7 +108,7 @@
     text-decoration: none;
     font-size: 12px; /* Decreased font size */
     font-weight: 500;
-    padding: 15px 5px;
+    padding: 22px 5px; /* Increased padding to work with new navbar height */
     display: block;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -255,6 +255,9 @@
     text-decoration: none;
     transition: color 0.3s ease;
     position: relative; /* For positioning badges/counts */
+    padding: 8px 0; /* Added vertical padding for consistent spacing */
+    display: flex;
+    align-items: center;
 }
 
 .icon-link:hover {
@@ -302,21 +305,21 @@
     }
 
     .nav-link {
-        padding: 15px 3px; /* Adjusted padding for 45px navbar */
+        padding: 22px 3px; /* Adjusted padding for 65px navbar */
         font-size: 11px; /* Smaller font size */
     }
 
     .icon-link {
         margin-left: 12px;
         font-size: 24px; /* Reduce margin between icons */
+        padding: 8px 0; /* Maintain consistent spacing */
     }
 
     .brand {
         font-size: 32px; /* Increased font size */
         font-weight: 700; /* Increased font weight */
         margin-right: 10px;
-        margin-bottom: 5px; /* Added bottom margin for spacing */
-        padding-bottom: 3px; /* Added bottom padding for spacing */
+        padding: 8px 0; /* Updated padding for consistency */
     }
 }
 
@@ -389,8 +392,7 @@
     .brand {
         order: 1; /* Comes after hamburger menu */
         margin: 0 auto 0 15px; /* Added left margin */
-        margin-bottom: 5px; /* Added bottom margin for spacing */
-        padding-bottom: 3px; /* Added bottom padding for spacing */
+        padding: 8px 0; /* Updated padding for consistency */
         font-size: 36px; /* Increased font size */
         font-weight: 700; /* Increased font weight */
         text-align: left;
@@ -411,6 +413,7 @@
     .icon-link {
         margin-left: 12px; /* Spacing between icons */
         font-size: 22px; /* Larger icons */
+        padding: 8px 0; /* Maintain consistent spacing */
     }
 
     .close-menu {
@@ -620,7 +623,7 @@
 /* Mobile Landscape (767px and below) */
 @media (max-width: 767px) {
     .nav-container {
-        padding: 0 15px;
+        padding: 10px 15px; /* Maintain top/bottom spacing */
     }
 
     .nav-icons {
@@ -630,21 +633,20 @@
     .icon-link {
         margin-left: 8px;
         font-size: 22px;
+        padding: 8px 0; /* Maintain consistent spacing */
     }
 }
 
 /* Mobile Portrait */
 @media (max-width: 576px) {
     .nav-container {
-        padding: 0 15px;
-
+        padding: 10px 15px; /* Maintain top/bottom spacing */
     }
 
     .brand {
         font-size: 32px; /* Increased font size */
         font-weight: 700; /* Increased font weight */
-        margin-bottom: 5px; /* Added bottom margin for spacing */
-        padding-bottom: 3px; /* Added bottom padding for spacing */
+        padding: 8px 0; /* Updated padding for consistency */
     }
 
     .brand-logo {
@@ -655,6 +657,7 @@
     .icon-link {
         margin-left: 8px;
         font-size: 20px; /* Larger icons on mobile */
+        padding: 8px 0; /* Maintain consistent spacing */
     }
 
     .nav-menu {
