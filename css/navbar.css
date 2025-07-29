@@ -40,7 +40,7 @@
 }
 
 .brand-logo {
-    height: 45px;
+    height: 38px;
     width: auto;
     max-width: 180px;
     object-fit: contain;
@@ -300,17 +300,17 @@
     .nav-item {
         margin: 0 10px; /* Reduce margins between items */
     }
-    
+
     .nav-link {
         padding: 35px 3px; /* Increased padding to match taller header */
         font-size: 11px; /* Smaller font size */
     }
-    
+
     .icon-link {
         margin-left: 12px;
         font-size: 24px; /* Reduce margin between icons */
     }
-    
+
     .brand {
         font-size: 32px; /* Increased font size */
         font-weight: 700; /* Increased font weight */
@@ -379,13 +379,13 @@
     .mobile-special {
         display: block;
     }
-    
+
     .hamburger {
         display: block;
         order: 0; /* First item on left side */
         margin-right: 10px;
     }
-    
+
     .brand {
         order: 1; /* Comes after hamburger menu */
         margin: 0 auto 0 15px; /* Added left margin */
@@ -395,28 +395,28 @@
         font-weight: 700; /* Increased font weight */
         text-align: left;
     }
-    
+
     .brand-logo {
-        height: 45px; /* Slightly smaller on tablet */
+        height: 38px; /* Slightly smaller on tablet */
         max-width: 160px;
     }
-    
+
     .nav-icons {
         order: 2;
         display: flex;
         justify-content: flex-end;
         min-width: 140px; /* Ensure enough space for icons */
     }
-    
+
     .icon-link {
         margin-left: 12px; /* Spacing between icons */
         font-size: 22px; /* Larger icons */
     }
-    
+
     .close-menu {
         display: block; /* Show close button on mobile */
     }
-    
+
     /* Mobile Menu - Slide from left (like image) */
     .nav-menu {
         position: fixed;
@@ -435,11 +435,11 @@
         display: flex;
         flex-direction: column; /* Ensure vertical stacking */
     }
-    
+
     .nav-menu.active {
         left: 0; /* Slide in from left */
     }
-    
+
     /* Mobile Menu Styling to Match Image */
     .nav-list {
         flex-direction: column;
@@ -448,7 +448,7 @@
         padding: 50px 0 0 0; /* Added more top padding to match image */
         display: flex; /* Ensure flex is applied */
     }
-    
+
     .nav-item {
         margin: 0;
         border-bottom: 1px solid #eeeeee; /* Lighter border color to match image */
@@ -456,7 +456,7 @@
         position: relative;
         /*flex: 0 0 100%; /* Ensure each item takes up full width in vertical layout */
     }
-    
+
     .nav-link {
         padding: 18px 20px;
         width: 100%;
@@ -469,12 +469,12 @@
         align-items: center;
         color: #000; /* Darker text color */
     }
-    
+
     /* Style the dropdown toggle plus sign */
     .dropdown-toggle i.fa-chevron-down {
         display: none;
     }
-    
+
     .dropdown-toggle:after {
         content: '+';
         position: absolute;
@@ -486,18 +486,18 @@
         transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         color: #666;
     }
-    
+
     .dropdown.active .dropdown-toggle:after {
         content: '−';
         transform: translateY(-50%) rotate(180deg);
         color: #c59d5f;
     }
-    
+
     .dropdown-toggle:hover:after {
         color: #c59d5f;
         transform: translateY(-50%) scale(1.1);
     }
-    
+
     .dropdown-menu {
         position: static;
         box-shadow: none;
@@ -516,14 +516,14 @@
         border-radius: 0 0 8px 8px;
         margin-top: 5px;
     }
-    
+
     .dropdown.active .dropdown-menu {
         opacity: 1;
         visibility: visible;
         max-height: 300px;
         padding: 10px 0 10px 40px;
     }
-    
+
     .dropdown-menu li {
         padding: 0;
         border-bottom: none;
@@ -531,28 +531,28 @@
         opacity: 0;
         transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
-    
+
     .dropdown.active .dropdown-menu li {
         transform: translateX(0);
         opacity: 1;
     }
-    
+
     .dropdown.active .dropdown-menu li:nth-child(1) {
         transition-delay: 0.1s;
     }
-    
+
     .dropdown.active .dropdown-menu li:nth-child(2) {
         transition-delay: 0.15s;
     }
-    
+
     .dropdown.active .dropdown-menu li:nth-child(3) {
         transition-delay: 0.2s;
     }
-    
+
     .dropdown.active .dropdown-menu li:nth-child(4) {
         transition-delay: 0.25s;
     }
-    
+
     .dropdown-menu a {
         font-size: 15px;
         padding: 12px 0;
@@ -564,13 +564,13 @@
         margin: 2px 0;
         position: relative;
     }
-    
+
     .dropdown-menu a:hover {
         color: #c59d5f;
         background: rgba(196, 157, 95, 0.1);
         padding-left: 8px;
     }
-    
+
     /* Mobile Menu Bottom Account Links */
     .mobile-account-links {
         position: relative; /* Changed from absolute to better ensure visibility */
@@ -583,12 +583,12 @@
         padding-top: 15px; /* Add padding above the links */
         flex-direction: column; /* Ensure vertical layout */
     }
-    
+
     /* Ensure mobile links are displayed when menu is active */
     .nav-menu.active .mobile-account-links {
         display: flex; /* Use flex instead of block for better control */
     }
-    
+
     .mobile-account-link {
         display: flex;
         align-items: center;
@@ -600,12 +600,12 @@
         border-bottom: 1px solid #f0f0f0; /* Add separator between links */
         margin-bottom: 5px; /* Add space below each link */
     }
-    
+
     .mobile-account-link:last-child {
         border-bottom: none; /* Remove separator from last item */
         margin-bottom: 0;
     }
-    
+
     .mobile-account-link i {
         margin-right: 15px;
         width: 20px;
@@ -613,7 +613,7 @@
         color: #000; /* Ensure icons are dark */
         font-size: 18px; /* Larger icons */
     }
-    
+
     /* No special styling for mobile wishlist count as it's just in parentheses */
 }
 
@@ -622,11 +622,11 @@
     .nav-container {
         padding: 0 15px;
     }
-    
+
     .nav-icons {
         min-width: 110px;
     }
-    
+
     .icon-link {
         margin-left: 8px;
         font-size: 22px;
@@ -637,38 +637,37 @@
 @media (max-width: 576px) {
     .nav-container {
         padding: 0 15px;
-        
+
     }
-    
+
     .brand {
         font-size: 32px; /* Increased font size */
         font-weight: 700; /* Increased font weight */
         margin-bottom: 5px; /* Added bottom margin for spacing */
         padding-bottom: 3px; /* Added bottom padding for spacing */
     }
-    
+
     .brand-logo {
-        height: 40px; /* Smaller on mobile */
+        height: 38px; /* Smaller on mobile */
         max-width: 140px;
     }
-    
+
     .icon-link {
         margin-left: 8px;
         font-size: 20px; /* Larger icons on mobile */
     }
-    
+
     .nav-menu {
         width: 70%;
         right: -70%; /* Right-side menu */
         padding: 50px 15px 15px;
     }
-    
+
     .nav-link {
         font-size: 12px;
     }
-    
+
     .nav-icons {
         min-width: 100px;
     }
 }
-
