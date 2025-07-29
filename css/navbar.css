@@ -27,8 +27,9 @@
     text-decoration: none;
     margin-right: 20px;
     margin-left: 15px;
-    margin: 0 20px 0 15px;
-    padding: 0;
+    margin-bottom: 4px;
+    margin-top: 6px;
+    padding-bottom: 3px;
     min-width: 150px;
     order: 0;
     position: relative;
@@ -36,16 +37,14 @@
     letter-spacing: 1px;
     display: flex;
     align-items: center;
-    height: 100%;
 }
 
 .brand-logo {
-    height: 32px;
+    height: 30px;
     width: auto;
     max-width: 180px;
     object-fit: contain;
     transition: all 0.3s ease;
-    vertical-align: middle;
 }
 
 .brand:hover {
@@ -65,7 +64,7 @@
     height: 30px;
     position: relative;
     margin-right: 15px;
-    margin-top: 0;
+    margin-top: 8px;
     background: transparent;
     border: none;
     padding: 0;
@@ -109,10 +108,8 @@
     text-decoration: none;
     font-size: 12px; /* Decreased font size */
     font-weight: 500;
-    padding: 0 5px;
-    display: flex;
-    align-items: center;
-    height: 45px;
+    padding: 15px 5px;
+    display: block;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     transition: color 0.3s ease;
@@ -249,7 +246,6 @@
 .nav-icons {
     display: flex;
     align-items: center;
-    height: 100%;
 }
 
 .icon-link {
@@ -259,9 +255,6 @@
     text-decoration: none;
     transition: color 0.3s ease;
     position: relative; /* For positioning badges/counts */
-    display: flex;
-    align-items: center;
-    height: 100%;
 }
 
 .icon-link:hover {
@@ -309,9 +302,8 @@
     }
 
     .nav-link {
-        padding: 0 3px; /* Remove vertical padding for proper centering */
+        padding: 15px 3px; /* Adjusted padding for 45px navbar */
         font-size: 11px; /* Smaller font size */
-        height: 45px; /* Match navbar height */
     }
 
     .icon-link {
