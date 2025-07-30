@@ -43,7 +43,7 @@ window.CacheInvalidator = (function() {
     function clearLocalStorageCache() {
         console.log('🧹 Clearing localStorage cache...');
         let clearedCount = 0;
-        
+
         CACHE_KEYS.forEach(key => {
             try {
                 if (localStorage.getItem(key)) {
@@ -55,7 +55,7 @@ window.CacheInvalidator = (function() {
                 console.warn(`❌ Failed to clear ${key}:`, e);
             }
         });
-        
+
         console.log(`🎯 Cleared ${clearedCount} cache entries from localStorage`);
         return clearedCount > 0;
     }
@@ -107,7 +107,7 @@ window.CacheInvalidator = (function() {
         const timestamp = Date.now();
         const endpoint = getApiEndpoint(category);
         const cacheBustEndpoint = `${endpoint}${endpoint.includes('?') ? '&' : '?'}cacheBust=${timestamp}`;
-        
+
         console.log('🌐 Forcing cache invalidation via:', cacheBustEndpoint);
 
         try {
@@ -134,28 +134,28 @@ window.CacheInvalidator = (function() {
      */
     async function triggerFreshReload() {
         console.log('🔄 Triggering aggressive fresh reload of product loaders...');
-        
+
         // Trigger BridalProductsLoader refresh if available
         if (window.BridalProductsLoader && typeof window.BridalProductsLoader.loadBridalProducts === 'function') {
             try {
                 console.log('🔄 Force refreshing BridalProductsLoader with cache bypass...');
-                
+
                 // First clear the loader's internal cache
                 if (typeof window.BridalProductsLoader.clearCache === 'function') {
                     window.BridalProductsLoader.clearCache();
                     console.log('🧹 Cleared BridalProductsLoader internal cache');
                 }
-                
+
                 // Force refresh with forceRefresh=true
                 await window.BridalProductsLoader.loadBridalProducts(true);
                 console.log('✅ BridalProductsLoader force refreshed');
-                
+
                 // Update bridal section if available
                 if (typeof window.BridalProductsLoader.updateBridalSection === 'function') {
                     window.BridalProductsLoader.updateBridalSection();
                     console.log('✅ Bridal section updated with fresh data');
                 }
-                
+
                 // Double-check by doing another refresh after a short delay
                 setTimeout(async () => {
                     try {
@@ -167,12 +167,52 @@ window.CacheInvalidator = (function() {
                         console.warn('⚠️ Secondary refresh failed:', e);
                     }
                 }, 1000);
-                
+
             } catch (e) {
                 console.warn('❌ Failed to refresh BridalProductsLoader:', e);
             }
         } else {
-            console.warn('⚠️ BridalProductsLoader not available for refresh');
+            console.warn('⚠️ BridalProductsLoader not available for fresh reload');
+        }
+
+        // Trigger PolkiProductsLoader refresh if available
+        if (window.PolkiProductsLoader && typeof window.PolkiProductsLoader.loadPolkiProducts === 'function') {
+            try {
+                console.log('🔄 Force refreshing PolkiProductsLoader with cache bypass...');
+
+                // First clear the loader's internal cache
+                if (typeof window.PolkiProductsLoader.clearCache === 'function') {
+                    window.PolkiProductsLoader.clearCache();
+                    console.log('🧹 Cleared PolkiProductsLoader internal cache');
+                }
+
+                // Force refresh with forceRefresh=true
+                await window.PolkiProductsLoader.loadPolkiProducts(true);
+                console.log('✅ PolkiProductsLoader force refreshed');
+
+                // Update polki section if available
+                if (typeof window.PolkiProductsLoader.updatePolkiSection === 'function') {
+                    window.PolkiProductsLoader.updatePolkiSection();
+                    console.log('✅ Polki section updated with fresh data');
+                }
+
+                // Double-check by doing another refresh after a short delay
+                setTimeout(async () => {
+                    try {
+                        console.log('🔄 Double-checking with secondary refresh...');
+                        await window.PolkiProductsLoader.loadPolkiProducts(true);
+                        window.PolkiProductsLoader.updatePolkiSection();
+                        console.log('✅ Secondary refresh completed');
+                    } catch (e) {
+                        console.warn('⚠️ Secondary refresh failed:', e);
+                    }
+                }, 1000);
+
+            } catch (e) {
+                console.warn('❌ Failed to refresh PolkiProductsLoader:', e);
+            }
+        } else {
+            console.warn('⚠️ PolkiProductsLoader not available for fresh reload');
         }
     }
 
@@ -204,7 +244,7 @@ window.CacheInvalidator = (function() {
             await triggerFreshReload();
 
             const duration = Date.now() - startTime;
-            
+
             console.log('✅ Complete cache invalidation finished in', duration, 'ms');
             console.log('📊 Results:', {
                 localStorageCleared,
@@ -236,16 +276,16 @@ window.CacheInvalidator = (function() {
      */
     async function clearBrowserHttpCache() {
         console.log('🌐 Clearing browser HTTP cache...');
-        
+
         const env = getEnvironment();
         const timestamp = Date.now();
-        
+
         // Create multiple cache-busting requests to flush browser cache
         const urls = [
             env.isNetlify ? `/.netlify/functions/load-products?category=bridal&flush=${timestamp}` : `/api/load-products/bridal?flush=${timestamp}`,
             env.isNetlify ? `/.netlify/functions/load-products?category=bridal&bust=${timestamp}` : `/api/load-products/bridal?bust=${timestamp}`,
         ];
-        
+
         const promises = urls.map(url => {
             return fetch(url, {
                 method: 'GET',
@@ -263,7 +303,7 @@ window.CacheInvalidator = (function() {
                 return false;
             });
         });
-        
+
         await Promise.all(promises);
         console.log('✅ Browser HTTP cache clearing completed');
     }
@@ -294,12 +334,12 @@ window.CacheInvalidator = (function() {
     function isCacheInvalidationWorking() {
         const flag = localStorage.getItem('lastProductUpdate');
         const cacheTime = localStorage.getItem('bridalProductsTime');
-        
+
         if (!flag) return true; // No invalidation needed
-        
+
         const flagTime = parseInt(flag);
         const cache = parseInt(cacheTime || '0');
-        
+
         // If flag is newer than cache, invalidation is pending
         return flagTime <= cache;
     }

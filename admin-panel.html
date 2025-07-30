@@ -279,7 +279,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
-    
+
     <!-- Cache Invalidation System -->
     <script src="js/cache-invalidator.js"></script>
 
@@ -428,12 +428,12 @@
                             console.log('Upload completed, generating image proxy URL...');
                             const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
                             console.log('Image uploaded successfully to Firebase Storage:', downloadURL);
-                            
+
                             // Generate image proxy URL instead of direct Firebase URL
                             const imagePath = `productImages/${fileName}`;
                             const proxyURL = `/.netlify/functions/image-proxy?path=${encodeURIComponent(imagePath)}`;
                             console.log('Generated image proxy URL:', proxyURL);
-                            
+
                             resolve(proxyURL);
                         } catch (error) {
                             console.error('Error getting download URL:', error);
@@ -459,21 +459,21 @@
                 // Use the server API to load existing products (more reliable)
                 console.log('Loading existing products via server API...');
                 let existingProducts = [];
-                
+
                 try {
                     // Detect environment and use appropriate endpoint
                     const isNetlify = window.location.hostname.includes('netlify') || window.location.hostname.includes('.app');
-                    
+
                     // ADD CACHE BUSTING FOR ADMIN PANEL - Always get fresh data when adding products
                     const cacheBust = `cacheBust=${Date.now()}`;
                     const separator = isNetlify ? '&' : '?';
-                    
+
                     const apiEndpoint = isNetlify 
                         ? `/.netlify/functions/load-products?category=${category}&${cacheBust}`
                         : `/api/load-products/${category}?${cacheBust}`;
-                    
+
                     console.log('Using endpoint with cache busting:', apiEndpoint, '(Netlify:', isNetlify, ')');
-                    
+
                     // Use aggressive cache-busting headers to ensure fresh data
                     const response = await fetch(apiEndpoint, {
                         method: 'GET',
@@ -485,7 +485,7 @@
                         },
                         cache: 'no-store' // Force bypass browser cache
                     });
-                    
+
                     if (response.ok) {
                         const data = await response.json();
                         if (data.success && Array.isArray(data.products)) {
@@ -502,13 +502,13 @@
                 } catch (error) {
                     console.warn('Error loading products via server:', error.message);
                     console.log('Falling back to direct Firebase access...');
-                    
+
                     // Fallback to direct Firebase Storage access
                     try {
                         const storageRef = storage.ref(`productData/${category}-products.json`);
                         const downloadURL = await storageRef.getDownloadURL();
                         const directResponse = await fetch(downloadURL);
-                        
+
                         if (directResponse.ok) {
                             const data = await directResponse.json();
                             if (Array.isArray(data)) {
@@ -559,7 +559,7 @@
                 const blob = new Blob([jsonData], { type: 'application/json' });
 
                 const storageRef = storage.ref(`productData/${category}-products.json`);
-                
+
                 // Upload the file with 30-day CDN cache for optimal performance
                 const uploadTask = await storageRef.put(blob, {
                     contentType: 'application/json',
@@ -677,33 +677,33 @@
                 // Clear ALL caches and force fresh reload using the comprehensive cache invalidation system
                 try {
                     console.log('🧹 Starting aggressive cache invalidation after successful upload...');
-                    
+
                     // Use the global cache invalidation system if available
                     if (window.CacheInvalidator && window.CacheInvalidator.invalidateAllCaches) {
                         window.CacheInvalidator.invalidateAllCaches(productCategory).then(result => {
                             if (result.success) {
                                 console.log('✅ Comprehensive cache invalidation completed successfully');
                                 console.log('📊 Cache invalidation results:', result);
-                                
+
                                 // Additional verification: wait a moment then check if cache invalidation worked
                                 setTimeout(() => {
                                     if (window.CacheInvalidator.isCacheInvalidationWorking && 
                                         !window.CacheInvalidator.isCacheInvalidationWorking()) {
                                         console.log('🚨 Cache invalidation verification failed, using nuclear option');
-                                        
+
                                         // Show user message about refresh
                                         const refreshMessage = document.createElement('div');
                                         refreshMessage.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #ff9800; color: white; padding: 15px 25px; border-radius: 8px; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);';
                                         refreshMessage.innerHTML = '🔄 Refreshing page to ensure new product appears...';
                                         document.body.appendChild(refreshMessage);
-                                        
+
                                         // Force page reload as nuclear option
                                         window.CacheInvalidator.forcePageReload(3000);
                                     } else {
                                         console.log('✅ Cache invalidation verification passed');
                                     }
                                 }, 2000);
-                                
+
                             } else {
                                 console.error('❌ Cache invalidation failed:', result.error);
                                 // Fallback to nuclear option if cache invalidation failed
@@ -723,33 +723,33 @@
                     } else {
                         // Fallback to manual cache clearing if the system isn't available
                         console.log('⚠️ CacheInvalidator not available, using fallback method with page reload');
-                        
+
                         // Clear localStorage cache
                         const cacheKeys = ['bridalProducts', 'bridalProductsTime', 'bridalProductsETag', 'lastProductUpdate'];
                         cacheKeys.forEach(key => {
                             localStorage.removeItem(key);
                             console.log(`Cleared localStorage: ${key}`);
                         });
-                        
+
                         // Clear BridalProductsLoader cache if available
                         if (window.BridalProductsLoader && window.BridalProductsLoader.clearCache) {
                             window.BridalProductsLoader.clearCache();
                             console.log('Cleared BridalProductsLoader cache');
                         }
-                        
+
                         // Set cache invalidation flag
                         const timestamp = Date.now();
                         localStorage.setItem('lastProductUpdate', timestamp.toString());
                         console.log('Set cache invalidation flag:', new Date(timestamp));
-                        
+
                         console.log('✅ Fallback cache clearing completed - forcing page reload');
-                        
+
                         // Force page reload as fallback nuclear option
                         setTimeout(() => {
                             window.location.reload(true);
                         }, 2000);
                     }
-                    
+
                 } catch (cacheError) {
                     console.error('❌ Error during cache invalidation process:', cacheError);
                     // Nuclear option even on errors

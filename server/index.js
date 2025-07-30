@@ -37,7 +37,7 @@ app.post('/api/send-order-email', async (req, res) => {
   try {
     // Get order data from request body
     const orderData = req.body;
-    
+
     // Validate required data
     if (!orderData || !orderData.customer || !orderData.products) {
       return res.status(400).json({
@@ -45,12 +45,12 @@ app.post('/api/send-order-email', async (req, res) => {
         message: 'Missing required order data'
       });
     }
-    
+
     console.log('Received order email request for:', orderData.orderReference);
-    
+
     // Send emails
     const result = await emailService.sendOrderEmails(orderData);
-    
+
     if (result.success) {
       return res.status(200).json({
         success: true,
@@ -91,7 +91,7 @@ app.listen(PORT, '0.0.0.0', () => {
   ✅ Auric Order Email Server running on port ${PORT}
   📧 Ready to send order confirmation emails
   🔒 Using secure Nodemailer transport
-  
+
   Available Routes:
   - GET  / : Service information
   - POST /api/send-order-email : Send order confirmation emails

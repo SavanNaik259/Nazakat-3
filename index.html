@@ -173,7 +173,7 @@
     <!-- Overlay for menu background -->
     <div class="menu-overlay" id="menuOverlay"></div>
 
-    
+
 
     <!-- Hero Slider Section -->
     <section class="hero-slider">
@@ -341,7 +341,7 @@
             </div>
 
            <div class="arrivals-grid">
-               
+
             </div>
 
             <div class="bridal-edit-cta">
@@ -652,8 +652,7 @@
     <section class="bridal-jewelry-section">
         <div class="video-background">
             <video autoplay muted loop playsinline class="background-video">
-                <source src="1024X768(6).mp" type="video/mp4">
-                Your browser does not support the video tag.
+                <source src="1024X768(6).mp" type="video/mp4">                Your browser does not support the video tag.
             </video>
             <div class="video-overlay"></div>
         </div>
@@ -1382,13 +1381,13 @@
                     <div class="copyright">
                         <p>&copy; 2025 SP Jewellers. All rights reserved. | Developed by <a href="https://savannaik.netlify.app/" target="_blank" style="color: #9c7c38; text-decoration: none; font-weight: 500;">Savan Naik</a></p>
                     </div>
-                    
+
                     <div class="footer-links">
                         <a href="reset-cart-flags-simplified.html">Reset Cart</a>
                         <a href="reset-flags-simplified.html">Reset System</a>
                         <a href="#">Sitemap</a>
                     </div>
-                    
+
                     <div class="payment-methods">
                         <span><i class="fab fa-cc-amex"></i></span>
                        <!-- <span><i class="fab fa-apple-pay"></i></span>
@@ -1486,13 +1485,15 @@
     <script src="js/cache-invalidator.js"></script>
     <script src="js/bridal-products-loader.js?v=1.0.0"></script>
     <script src="js/new-arrivals-products-loader.js?v=1.0.0"></script>
+        <!-- Polki Products Loader -->
+    <script src="js/polki-products-loader.js?v=1.0.0"></script>
 
     <!-- Firebase Authentication Check -->
     <script>
       // Wait for FirebaseAuth to be available and handle authentication
       function handleAuthentication() {
         const FirebaseAuth = window.FirebaseAuth;
-        
+
         if (!FirebaseAuth) {
           console.warn('FirebaseAuth module not yet available, retrying...');
           setTimeout(handleAuthentication, 100);
