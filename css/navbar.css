@@ -418,10 +418,12 @@
     }
 
     .wishlist-count, .cart-count {
-        top: 10px; /* Adjust for smaller screens */
+        top: 7px;
+        right: -5px;
         font-size: 9px;
         width: 15px;
         height: 15px;
+        min-width: 15px;
     }
 
     .close-menu {
