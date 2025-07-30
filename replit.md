@@ -325,6 +325,19 @@ Auric is a premium jewelry e-commerce platform built with a modern web stack fea
   - **Documentation**: Created `etag-optimization-implementation.md` with complete technical analysis
   - **Cache Behavior**: First visitor per region downloads content, subsequent visitors get 304 responses (zero bandwidth)
   - **User Experience**: New products appear immediately globally while existing products stay optimally cached
+- July 30, 2025: CRITICAL FIX - Implemented Direct Firebase Storage CDN Access (True CDN Caching)
+  - **User Issue**: Both New Arrivals and Bridal Edit sections using proxy layers that defeat CDN caching
+  - **Root Cause**: Netlify functions and server endpoints act as proxies, triggering bandwidth on every request
+  - **Architecture Problem**: Every user request goes through proxy layers instead of CDN
+  - **Solution**: Updated both sections to use DIRECT Firebase Storage CDN URLs with NO proxy layers
+  - **Implementation**: 
+    - Modified `js/new-arrivals-products-loader.js` to use direct CDN URL: `https://firebasestorage.googleapis.com/v0/b/auric-a0c92.firebasestorage.app/o/products%2Fnew-arrivals-products.json?alt=media`
+    - Modified `js/bridal-products-loader.js` to use direct CDN URL: `https://firebasestorage.googleapis.com/v0/b/auric-a0c92.firebasestorage.app/o/products%2Fbridal-products.json?alt=media`
+  - **Created Admin Tool**: `admin-upload-products.html` for uploading products to correct Firebase Storage paths
+  - **Expected Behavior**: First user per region triggers bandwidth, subsequent users = 0 bandwidth consumption
+  - **Cache Duration**: 1-year CDN caching with ETag validation for immediate updates
+  - **Result**: True CDN caching achieved - exactly like the working `cdn-bandwidth-test-FINAL-DIRECT.html` implementation
+  - **Status**: Both sections now bypass ALL proxy layers for genuine CDN bandwidth optimization
 
 ## User Preferences
 
