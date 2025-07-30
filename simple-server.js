@@ -323,6 +323,105 @@ app.get('/api/load-products/:category', async (req, res) => {
 });
 
 /**
+ * Local Netlify function proxy for load-products (for CDN testing)
+ * Mimics the Netlify function behavior for local testing with proper CDN headers
+ */
+app.get('/.netlify/functions/load-products', async (req, res) => {
+  try {
+    const category = req.query.category;
+    const cacheBust = req.query.cacheBust;
+    
+    if (!category) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Missing category parameter',
+        usage: '/.netlify/functions/load-products?category=bridal'
+      });
+    }
+    
+    console.log(`Netlify function proxy: Loading ${category} products${cacheBust ? ' with cache bust' : ''}...`);
+    
+    // Detect if this is a cache-busting request from admin panel
+    const isCacheBust = !!cacheBust;
+    
+    const storageUrl = `https://firebasestorage.googleapis.com/v0/b/auric-a0c92.firebasestorage.app/o/productData%2F${category}-products.json?alt=media&token=c6a2eb63-56e3-4fc0-96ac-66773cf45f96`;
+    
+    // Use fetch to get the file from Firebase Storage
+    const fetchOptions = isCacheBust ? {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    } : {};
+    
+    const response = await fetch(storageUrl, fetchOptions);
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log(`No ${category} products file found in Firebase Storage`);
+        return res.status(200).json({
+          success: true,
+          products: [],
+          message: `No ${category} products found - add some through the admin panel`
+        });
+      }
+      throw new Error(`Failed to fetch from Firebase Storage: ${response.status}`);
+    }
+
+    const products = await response.json();
+
+    // Get cache headers from Firebase Storage response to pass through
+    const cacheControl = response.headers.get('cache-control') || response.headers.get('Cache-Control');
+    const etag = response.headers.get('etag') || response.headers.get('ETag');
+
+    console.log(`Cache-Control: ${cacheControl}, ETag: ${etag}`);
+    console.log(`Successfully loaded ${products.length} ${category} products from Firebase Storage CDN`);
+
+    // Set proper CDN cache headers for Netlify CDN caching
+    const responseHeaders = {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, If-None-Match, Cache-Control',
+      'Content-Type': 'application/json'
+    };
+
+    // For cache-busting requests, prevent all caching
+    if (isCacheBust) {
+      responseHeaders['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+      responseHeaders['Pragma'] = 'no-cache';
+      responseHeaders['Expires'] = '0';
+    } else {
+      // For normal requests, set long-term CDN caching with ETag validation
+      responseHeaders['Cache-Control'] = 'public, max-age=31536000, must-revalidate'; // 1 year cache with must-revalidate
+      responseHeaders['Netlify-CDN-Cache-Control'] = 'public, max-age=31536000, durable'; // Netlify CDN specific
+      
+      // Pass through Firebase Storage ETag for validation
+      if (etag) {
+        responseHeaders['ETag'] = etag;
+      }
+    }
+
+    res.set(responseHeaders);
+    return res.status(200).json({
+      success: true,
+      products: Array.isArray(products) ? products : [],
+      message: `Loaded ${products.length} ${category} products from Firebase Storage CDN`
+    });
+
+  } catch (error) {
+    console.error(`Error in Netlify function proxy:`, error);
+
+    return res.status(500).json({
+      success: false,
+      products: [],
+      error: `Failed to load products: ${error.message}`,
+      message: 'Please check Firebase configuration and try again'
+    });
+  }
+});
+
+/**
  * Local image proxy endpoint for development
  * Mimics the Netlify function behavior for local testing
  */
