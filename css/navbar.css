@@ -267,18 +267,19 @@
 /* Cart and wishlist count styles */
 .wishlist-count, .cart-count {
     position: absolute;
-    top: 15px;
+    top: 25px !important;
     right: -3px;
-    background-color: #000;
+    background-color: #ff0000 !important;
     color: #fff;
-    font-size: 10px;
-    width: 16px;
-    height: 16px;
+    font-size: 12px !important;
+    width: 20px !important;
+    height: 20px !important;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 500;
+    z-index: 999 !important;
 }
 
 /* Menu Overlay */
