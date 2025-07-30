@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDN Fix Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border: 1px solid #ddd; }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>CDN Caching Fix Test - nazakat.netlify.app</h1>
+    
+    <div id="cache-status"></div>
+    
+    <button onclick="clearCacheFlag()">Clear Cache Flag</button>
+    <button onclick="testBridalLoad()">Test Bridal Load</button>
+    <button onclick="testNewArrivalsLoad()">Test New Arrivals Load</button>
+    <button onclick="testSecondLoad()">Test Second Load (Should use CDN)</button>
+    
+    <div id="results"></div>
+    
+    <script>
+        function log(message, isError = false) {
+            const div = document.createElement('div');
+            div.className = `test-result ${isError ? 'error' : 'success'}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            document.getElementById('results').appendChild(div);
+        }
+        
+        function checkCacheStatus() {
+            const lastUpdate = localStorage.getItem('lastProductUpdate');
+            const bridalTime = localStorage.getItem('bridalProductsTime');
+            const newArrivalsTime = localStorage.getItem('newArrivalsProductsTime');
+            
+            document.getElementById('cache-status').innerHTML = `
+                <h3>Current Cache Status:</h3>
+                <p><strong>lastProductUpdate:</strong> ${lastUpdate ? new Date(parseInt(lastUpdate)).toLocaleString() : 'Not set'}</p>
+                <p><strong>bridalProductsTime:</strong> ${bridalTime ? new Date(parseInt(bridalTime)).toLocaleString() : 'Not set'}</p>
+                <p><strong>newArrivalsProductsTime:</strong> ${newArrivalsTime ? new Date(parseInt(newArrivalsTime)).toLocaleString() : 'Not set'}</p>
+            `;
+        }
+        
+        function clearCacheFlag() {
+            localStorage.removeItem('lastProductUpdate');
+            log('✅ Cleared lastProductUpdate flag - CDN caching should now work');
+            checkCacheStatus();
+        }
+        
+        async function testBridalLoad() {
+            log('🔄 Testing Bridal Products Load...');
+            try {
+                const startTime = performance.now();
+                const response = await fetch('/.netlify/functions/load-products?category=bridal');
+                const endTime = performance.now();
+                const data = await response.json();
+                
+                log(`✅ Bridal products loaded: ${data.products.length} products in ${Math.round(endTime - startTime)}ms`);
+                log(`📊 Response headers: Cache-Control: ${response.headers.get('cache-control')}, ETag: ${response.headers.get('etag')?.substring(0, 20)}...`);
+            } catch (error) {
+                log(`❌ Bridal load failed: ${error.message}`, true);
+            }
+        }
+        
+        async function testNewArrivalsLoad() {
+            log('🔄 Testing New Arrivals Products Load...');
+            try {
+                const startTime = performance.now();
+                const response = await fetch('/.netlify/functions/load-products?category=new-arrivals');
+                const endTime = performance.now();
+                const data = await response.json();
+                
+                log(`✅ New arrivals products loaded: ${data.products.length} products in ${Math.round(endTime - startTime)}ms`);
+                log(`📊 Response headers: Cache-Control: ${response.headers.get('cache-control')}, ETag: ${response.headers.get('etag')?.substring(0, 20)}...`);
+            } catch (error) {
+                log(`❌ New arrivals load failed: ${error.message}`, true);
+            }
+        }
+        
+        async function testSecondLoad() {
+            log('🔄 Testing Second Load (Should be CDN cached)...');
+            try {
+                const startTime = performance.now();
+                const response = await fetch('/.netlify/functions/load-products?category=bridal');
+                const endTime = performance.now();
+                const data = await response.json();
+                
+                const responseTime = Math.round(endTime - startTime);
+                
+                if (responseTime < 50) {
+                    log(`✅ EXCELLENT: Second load was ${responseTime}ms - likely CDN cached!`);
+                } else {
+                    log(`⚠️ Second load was ${responseTime}ms - may not be using CDN cache`, true);
+                }
+                
+                log(`📊 Cache status: ${response.headers.get('cf-cache-status') || response.headers.get('x-cache') || 'No cache header'}`);
+            } catch (error) {
+                log(`❌ Second load failed: ${error.message}`, true);
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkCacheStatus();
+            log('🚀 CDN Fix Test Ready - Clear cache flag first, then test loads');
+        });
+    </script>
+</body>
+</html>

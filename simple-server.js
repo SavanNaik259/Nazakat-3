@@ -267,8 +267,7 @@ app.get('/api/load-products/:category', async (req, res) => {
     // Generate content-based ETag for optimal caching
     const crypto = require('crypto');
     const contentHash = crypto.createHash('md5').update(content).digest('hex');
-    const timestamp = new Date().toISOString().substring(0, 10); // YYYY-MM-DD format
-    const serverETag = `"products-${category}-${contentHash.substring(0, 8)}-${timestamp}"`;
+    const serverETag = `"products-${category}-${contentHash.substring(0, 8)}"`;
 
     console.log(`Generated ETag for ${category}:`, serverETag);
 
