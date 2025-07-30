@@ -6,11 +6,17 @@
 window.CacheInvalidator = (function() {
     'use strict';
 
-    // Cache keys to manage
+    // Cache keys to manage - ALL product categories
     const CACHE_KEYS = [
         'bridalProducts',
         'bridalProductsTime', 
         'bridalProductsETag',
+        'newArrivalsProducts',
+        'newArrivalsProductsTime',
+        'newArrivalsProductsETag',
+        'polkiProducts',
+        'polkiProductsTime',
+        'polkiProductsETag',
         'lastProductUpdate'
     ];
 
@@ -78,8 +84,27 @@ window.CacheInvalidator = (function() {
             }
         }
 
-        // Clear any other product loader caches here
-        // Add more module cache clearing logic as needed
+        // Clear NewArrivalsProductsLoader cache
+        if (window.NewArrivalsProductsLoader && typeof window.NewArrivalsProductsLoader.clearCache === 'function') {
+            try {
+                window.NewArrivalsProductsLoader.clearCache();
+                modulesCleared++;
+                console.log('✅ NewArrivalsProductsLoader cache cleared');
+            } catch (e) {
+                console.warn('❌ Failed to clear NewArrivalsProductsLoader cache:', e);
+            }
+        }
+
+        // Clear PolkiProductsLoader cache
+        if (window.PolkiProductsLoader && typeof window.PolkiProductsLoader.clearCache === 'function') {
+            try {
+                window.PolkiProductsLoader.clearCache();
+                modulesCleared++;
+                console.log('✅ PolkiProductsLoader cache cleared');
+            } catch (e) {
+                console.warn('❌ Failed to clear PolkiProductsLoader cache:', e);
+            }
+        }
 
         console.log(`🎯 Cleared ${modulesCleared} module caches`);
         return modulesCleared > 0;
@@ -101,32 +126,48 @@ window.CacheInvalidator = (function() {
     }
 
     /**
-     * Force cache invalidation by making a cache-busting request
+     * Force cache invalidation by making cache-busting requests for ALL categories
      */
-    async function forceCacheInvalidation(category = 'bridal') {
+    async function forceCacheInvalidation(categories = ['bridal', 'new-arrivals', 'polki']) {
+        console.log('🌐 Forcing cache invalidation for categories:', categories);
         const timestamp = Date.now();
-        const endpoint = getApiEndpoint(category);
-        const cacheBustEndpoint = `${endpoint}${endpoint.includes('?') ? '&' : '?'}cacheBust=${timestamp}`;
+        const results = [];
 
-        console.log('🌐 Forcing cache invalidation via:', cacheBustEndpoint);
+        for (const category of categories) {
+            try {
+                const endpoint = getApiEndpoint(category);
+                const cacheBustEndpoint = `${endpoint}${endpoint.includes('?') ? '&' : '?'}cacheBust=${timestamp}`;
 
-        try {
-            const response = await fetch(cacheBustEndpoint, {
-                method: 'GET',
-                cache: 'no-store',
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache',
-                    'Expires': '0'
-                }
-            });
+                console.log(`🔄 Cache busting ${category}:`, cacheBustEndpoint);
 
-            console.log('📡 Cache invalidation response:', response.status, response.statusText);
-            return response.ok;
-        } catch (error) {
-            console.warn('❌ Cache invalidation request failed:', error);
-            return false;
+                const response = await fetch(cacheBustEndpoint, {
+                    method: 'GET',
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    }
+                });
+
+                results.push({
+                    category,
+                    success: response.ok,
+                    status: response.status
+                });
+
+                console.log(`📡 ${category} cache invalidation:`, response.status, response.statusText);
+            } catch (error) {
+                console.error(`❌ Failed to invalidate ${category} cache:`, error);
+                results.push({
+                    category,
+                    success: false,
+                    error: error.message
+                });
+            }
         }
+
+        return results;
     }
 
     /**

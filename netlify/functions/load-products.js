@@ -87,7 +87,8 @@ exports.handler = async (event, context) => {
       cache: 'no-store',
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache'
+        'Pragma': 'no-cache',
+        'X-Cache-Bust': `${Date.now()}`  // Force cache invalidation
       }
     } : {};
     
@@ -134,9 +135,14 @@ exports.handler = async (event, context) => {
       responseHeaders['Cache-Control'] = 'public, max-age=31536000, must-revalidate'; // 1 year cache with must-revalidate
       responseHeaders['Netlify-CDN-Cache-Control'] = 'public, max-age=31536000, durable'; // Netlify CDN specific
       
-      // Pass through Firebase Storage ETag for validation
+      // Generate content-based ETag with timestamp for better cache invalidation
       if (etag) {
-        responseHeaders['ETag'] = etag;
+        // Extract original ETag value and add timestamp for uniqueness
+        const cleanETag = etag.replace(/"/g, '');
+        const timestamp = new Date().toISOString().substring(0, 10); // YYYY-MM-DD format
+        const enhancedETag = `"${cleanETag}-${timestamp}"`;
+        responseHeaders['ETag'] = enhancedETag;
+        console.log(`Enhanced ETag: ${enhancedETag}`);
       }
     }
 

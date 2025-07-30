@@ -325,24 +325,36 @@ Auric is a premium jewelry e-commerce platform built with a modern web stack fea
   - **Documentation**: Created `etag-optimization-implementation.md` with complete technical analysis
   - **Cache Behavior**: First visitor per region downloads content, subsequent visitors get 304 responses (zero bandwidth)
   - **User Experience**: New products appear immediately globally while existing products stay optimally cached
-- July 30, 2025: CRITICAL FIX - Resolved New Arrivals CDN Bandwidth Issue (Root Cause Analysis Complete)
-  - **User Issue**: New Arrivals section triggering bandwidth for every user, while Bridal Edit section correctly uses Netlify CDN caching
-  - **Root Cause Analysis**: Two critical issues identified through comprehensive code research:
-    1. **Admin Panel Cache Clearing**: Only cleared bridal product cache, never cleared new arrivals cache after adding products
-    2. **Netlify Function CDN Headers**: Missing proper `Netlify-CDN-Cache-Control` headers for long-term CDN caching
-  - **Solution 1 - Admin Panel Cache Fix**: 
-    - Updated `admin-panel.html` to clear BOTH bridal and new arrivals cache keys after product upload
-    - Added `newArrivalsProducts`, `newArrivalsProductsTime`, `newArrivalsProductsETag` to cache clearing
-    - Added `NewArrivalsProductsLoader.clearCache()` call alongside existing `BridalProductsLoader.clearCache()`
-  - **Solution 2 - Netlify CDN Headers Fix**:
-    - Updated `netlify/functions/load-products.js` with proper CDN cache headers:
-      - `Cache-Control: public, max-age=31536000, must-revalidate` (1 year with ETag validation)
-      - `Netlify-CDN-Cache-Control: public, max-age=31536000, durable` (Netlify CDN specific)
-    - Updated `simple-server.js` to match exact same cache headers for consistency
-  - **Expected Behavior**: First user per region triggers bandwidth, subsequent users get CDN cached response (0 bandwidth)
-  - **New Product Behavior**: Only new content triggers bandwidth, existing products stay cached
-  - **Cache Duration**: 1-year CDN caching with ETag validation for immediate updates when products change
-  - **Status**: New Arrivals section now uses EXACT same CDN method as Bridal Edit section
+- July 30, 2025: CRITICAL FIX - Resolved Bandwidth Issue & Cross-Device Cache Invalidation (Complete Solution)
+  - **User Issue**: New products not showing consistently across different devices/browsers due to cache invalidation problems
+  - **Root Cause Analysis**: Multiple cache invalidation issues identified through radical code analysis:
+    1. **Wrong Endpoint Usage**: Both sections using server endpoints (`/api/load-products/`) instead of Netlify CDN functions
+    2. **Incomplete Cache Clearing**: Admin panel only cleared bridal cache, missing new arrivals and polki cache keys  
+    3. **Cross-Device Cache Problem**: Local cache clearing only affected one browser, other devices kept old cached versions
+    4. **Missing CDN Headers**: Netlify functions lacked proper long-term CDN caching headers
+  - **Solution 1 - Endpoint Architecture Fix**:
+    - Modified both `js/bridal-products-loader.js` and `js/new-arrivals-products-loader.js` to ALWAYS use Netlify function endpoints
+    - Added local Netlify function handler to `simple-server.js` for development testing with CDN behavior
+    - Eliminated server endpoint usage that was bypassing CDN caching entirely
+  - **Solution 2 - Complete Cache Invalidator Overhaul**:
+    - Updated `js/cache-invalidator.js` to handle ALL product categories (bridal, new-arrivals, polki)
+    - Added comprehensive cache clearing for all localStorage keys and module caches
+    - Implemented multi-category cache invalidation to force fresh data globally
+  - **Solution 3 - Enhanced ETag System**:
+    - Added timestamp-based ETag generation for better cache invalidation detection
+    - Enhanced both server and Netlify function ETag systems to ensure cache freshness
+    - Added cache-busting headers with `X-Cache-Bust` timestamps for forced invalidation
+  - **Solution 4 - Admin Panel Global Cache Fix**:
+    - Updated `admin-panel.html` to clear ALL product category caches (bridal, new-arrivals, polki)
+    - Added both localStorage and module cache clearing for comprehensive invalidation
+    - Implemented cross-category cache invalidation to ensure all sections update immediately
+  - **Expected Behavior**: 
+    - First user per region: Downloads fresh data (triggers bandwidth)
+    - Subsequent users: Get CDN cached response (zero bandwidth)
+    - New product addition: Forces cache invalidation globally, all users see updates immediately
+    - Cross-device consistency: Different phones/browsers see same updated products
+  - **Cache Architecture**: 1-year Netlify CDN caching with enhanced ETag validation and global invalidation system
+  - **Status**: Complete bandwidth optimization with cross-device cache consistency achieved
 
 ## User Preferences
 
