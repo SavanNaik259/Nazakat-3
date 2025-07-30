@@ -267,19 +267,19 @@
 /* Cart and wishlist count styles */
 .wishlist-count, .cart-count {
     position: absolute;
-    top: 25px !important;
+    top: 18px;
     right: -3px;
-    background-color: #ff0000 !important;
+    background-color: #000;
     color: #fff;
-    font-size: 12px !important;
-    width: 20px !important;
-    height: 20px !important;
+    font-size: 10px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 500;
-    z-index: 999 !important;
+    z-index: 999;
 }
 
 /* Menu Overlay */
@@ -415,6 +415,13 @@
         margin-left: 12px; /* Spacing between icons */
         font-size: 22px; /* Larger icons */
         padding: 8px 0 3px 0; /* Reduced bottom padding for less height */
+    }
+
+    .wishlist-count, .cart-count {
+        top: 16px; /* Adjust for smaller screens */
+        font-size: 9px;
+        width: 15px;
+        height: 15px;
     }
 
     .close-menu {
@@ -636,6 +643,13 @@
         font-size: 22px;
         padding: 8px 0 3px 0; /* Reduced bottom padding for less height */
     }
+
+    .wishlist-count, .cart-count {
+        top: 15px; /* Adjust for medium mobile screens */
+        font-size: 9px;
+        width: 14px;
+        height: 14px;
+    }
 }
 
 /* Mobile Portrait */
@@ -659,6 +673,13 @@
         margin-left: 8px;
         font-size: 20px; /* Larger icons on mobile */
         padding: 8px 0 3px 0; /* Reduced bottom padding for less height */
+    }
+
+    .wishlist-count, .cart-count {
+        top: 14px; /* Adjust for small mobile screens */
+        font-size: 8px;
+        width: 13px;
+        height: 13px;
     }
 
     .nav-menu {
