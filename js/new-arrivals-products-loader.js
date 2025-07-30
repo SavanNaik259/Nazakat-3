@@ -320,7 +320,7 @@ const NewArrivalsProductsLoader = (function() {
     }
 
     /**
-     * Generate HTML for a product item
+     * Generate HTML for a product item (using Product Categories Section styling)
      */
     function generateProductHTML(product) {
         const formattedPrice = new Intl.NumberFormat('en-IN', {
@@ -330,16 +330,16 @@ const NewArrivalsProductsLoader = (function() {
         }).format(product.price);
 
         return `
-            <div class="arrival-item new-arrivals-card" data-product-id="${product.id}">
+            <div class="product-item" data-product-id="${product.id}" style="background: none;">
                 <a href="#" style="text-decoration: none; color: inherit;">
-                    <div class="arrival-image">
+                    <div class="product-image">
                         <img src="${product.image}" alt="${product.name}" loading="lazy">
                         <button class="add-to-wishlist" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}" data-product-image="${product.image}">
                             <i class="far fa-heart"></i>
                         </button>
                     </div>
-                    <div class="arrival-details">
-                        <h3 class="arrival-title">${product.name}</h3>
+                    <div class="product-details" style="text-align: center;">
+                        <h3 class="product-name">${product.name}</h3>
                         <div class="product-pricing">
                             <span class="current-price">${formattedPrice}</span>
                         </div>
@@ -391,7 +391,7 @@ const NewArrivalsProductsLoader = (function() {
         }
         
         // Get the parent product container
-        const productItem = button.closest('.arrival-item') || button.closest('.new-arrivals-card');
+        const productItem = button.closest('.product-item');
         if (!productItem) {
             console.error('Product container not found');
             return;
@@ -399,7 +399,7 @@ const NewArrivalsProductsLoader = (function() {
         
         // Extract product data from the product container elements
         const productId = productItem.dataset.productId || button.dataset.productId;
-        const productNameEl = productItem.querySelector('.arrival-title');
+        const productNameEl = productItem.querySelector('.product-name');
         const productName = productNameEl ? productNameEl.textContent.trim() : (button.dataset.productName || 'Unknown Product');
         
         // Get price from the price element in the product container
@@ -420,7 +420,7 @@ const NewArrivalsProductsLoader = (function() {
         }
         
         // Get image from the product container
-        const imageElement = productItem.querySelector('.arrival-image img');
+        const imageElement = productItem.querySelector('.product-image img');
         const productImage = imageElement ? imageElement.src : (button.dataset.productImage || '');
         
         const productData = {
@@ -465,7 +465,7 @@ const NewArrivalsProductsLoader = (function() {
      * Update the New Arrivals section with loaded products
      */
     async function updateNewArrivalsSection() {
-        const newArrivalsGrid = document.querySelector('.new-arrivals-products .arrivals-grid');
+        const newArrivalsGrid = document.querySelector('.new-arrivals-products .product-scroll-container');
 
         if (!newArrivalsGrid) {
             console.warn('New arrivals grid element not found');
