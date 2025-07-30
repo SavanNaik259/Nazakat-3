@@ -119,13 +119,26 @@ exports.handler = async (event, context) => {
 
     console.log(`Successfully loaded ${products.length} ${category} products from Firebase Storage CDN`);
 
-    // Pass through Firebase Storage cache headers for proper CDN behavior
+    // Set proper CDN cache headers for Netlify CDN caching
     const responseHeaders = {
       ...headers
     };
 
-    if (cacheControl) responseHeaders['Cache-Control'] = cacheControl;
-    if (etag) responseHeaders['ETag'] = etag;
+    // For cache-busting requests, prevent all caching
+    if (isCacheBust) {
+      responseHeaders['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+      responseHeaders['Pragma'] = 'no-cache';
+      responseHeaders['Expires'] = '0';
+    } else {
+      // For normal requests, set long-term CDN caching with ETag validation
+      responseHeaders['Cache-Control'] = 'public, max-age=31536000, must-revalidate'; // 1 year cache with must-revalidate
+      responseHeaders['Netlify-CDN-Cache-Control'] = 'public, max-age=31536000, durable'; // Netlify CDN specific
+      
+      // Pass through Firebase Storage ETag for validation
+      if (etag) {
+        responseHeaders['ETag'] = etag;
+      }
+    }
 
     return {
       statusCode: 200,

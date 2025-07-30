@@ -724,17 +724,25 @@
                         // Fallback to manual cache clearing if the system isn't available
                         console.log('⚠️ CacheInvalidator not available, using fallback method with page reload');
 
-                        // Clear localStorage cache
-                        const cacheKeys = ['bridalProducts', 'bridalProductsTime', 'bridalProductsETag', 'lastProductUpdate'];
+                        // Clear localStorage cache for BOTH bridal and new-arrivals
+                        const cacheKeys = [
+                            'bridalProducts', 'bridalProductsTime', 'bridalProductsETag', 
+                            'newArrivalsProducts', 'newArrivalsProductsTime', 'newArrivalsProductsETag',
+                            'lastProductUpdate'
+                        ];
                         cacheKeys.forEach(key => {
                             localStorage.removeItem(key);
                             console.log(`Cleared localStorage: ${key}`);
                         });
 
-                        // Clear BridalProductsLoader cache if available
+                        // Clear BOTH BridalProductsLoader and NewArrivalsProductsLoader cache if available
                         if (window.BridalProductsLoader && window.BridalProductsLoader.clearCache) {
                             window.BridalProductsLoader.clearCache();
                             console.log('Cleared BridalProductsLoader cache');
+                        }
+                        if (window.NewArrivalsProductsLoader && window.NewArrivalsProductsLoader.clearCache) {
+                            window.NewArrivalsProductsLoader.clearCache();
+                            console.log('Cleared NewArrivalsProductsLoader cache');
                         }
 
                         // Set cache invalidation flag

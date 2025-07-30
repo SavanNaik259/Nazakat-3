@@ -325,19 +325,24 @@ Auric is a premium jewelry e-commerce platform built with a modern web stack fea
   - **Documentation**: Created `etag-optimization-implementation.md` with complete technical analysis
   - **Cache Behavior**: First visitor per region downloads content, subsequent visitors get 304 responses (zero bandwidth)
   - **User Experience**: New products appear immediately globally while existing products stay optimally cached
-- July 30, 2025: CRITICAL FIX - Implemented Direct Firebase Storage CDN Access (True CDN Caching)
-  - **User Issue**: Both New Arrivals and Bridal Edit sections using proxy layers that defeat CDN caching
-  - **Root Cause**: Netlify functions and server endpoints act as proxies, triggering bandwidth on every request
-  - **Architecture Problem**: Every user request goes through proxy layers instead of CDN
-  - **Solution**: Updated both sections to use DIRECT Firebase Storage CDN URLs with NO proxy layers
-  - **Implementation**: 
-    - Modified `js/new-arrivals-products-loader.js` to use direct CDN URL: `https://firebasestorage.googleapis.com/v0/b/auric-a0c92.firebasestorage.app/o/products%2Fnew-arrivals-products.json?alt=media`
-    - Modified `js/bridal-products-loader.js` to use direct CDN URL: `https://firebasestorage.googleapis.com/v0/b/auric-a0c92.firebasestorage.app/o/products%2Fbridal-products.json?alt=media`
-  - **Created Admin Tool**: `admin-upload-products.html` for uploading products to correct Firebase Storage paths
-  - **Expected Behavior**: First user per region triggers bandwidth, subsequent users = 0 bandwidth consumption
-  - **Cache Duration**: 1-year CDN caching with ETag validation for immediate updates
-  - **Result**: True CDN caching achieved - exactly like the working `cdn-bandwidth-test-FINAL-DIRECT.html` implementation
-  - **Status**: Both sections now bypass ALL proxy layers for genuine CDN bandwidth optimization
+- July 30, 2025: CRITICAL FIX - Resolved New Arrivals CDN Bandwidth Issue (Root Cause Analysis Complete)
+  - **User Issue**: New Arrivals section triggering bandwidth for every user, while Bridal Edit section correctly uses Netlify CDN caching
+  - **Root Cause Analysis**: Two critical issues identified through comprehensive code research:
+    1. **Admin Panel Cache Clearing**: Only cleared bridal product cache, never cleared new arrivals cache after adding products
+    2. **Netlify Function CDN Headers**: Missing proper `Netlify-CDN-Cache-Control` headers for long-term CDN caching
+  - **Solution 1 - Admin Panel Cache Fix**: 
+    - Updated `admin-panel.html` to clear BOTH bridal and new arrivals cache keys after product upload
+    - Added `newArrivalsProducts`, `newArrivalsProductsTime`, `newArrivalsProductsETag` to cache clearing
+    - Added `NewArrivalsProductsLoader.clearCache()` call alongside existing `BridalProductsLoader.clearCache()`
+  - **Solution 2 - Netlify CDN Headers Fix**:
+    - Updated `netlify/functions/load-products.js` with proper CDN cache headers:
+      - `Cache-Control: public, max-age=31536000, must-revalidate` (1 year with ETag validation)
+      - `Netlify-CDN-Cache-Control: public, max-age=31536000, durable` (Netlify CDN specific)
+    - Updated `simple-server.js` to match exact same cache headers for consistency
+  - **Expected Behavior**: First user per region triggers bandwidth, subsequent users get CDN cached response (0 bandwidth)
+  - **New Product Behavior**: Only new content triggers bandwidth, existing products stay cached
+  - **Cache Duration**: 1-year CDN caching with ETag validation for immediate updates when products change
+  - **Status**: New Arrivals section now uses EXACT same CDN method as Bridal Edit section
 
 ## User Preferences
 

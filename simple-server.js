@@ -293,11 +293,11 @@ app.get('/api/load-products/:category', async (req, res) => {
         'Last-Modified': new Date().toUTCString()
       });
     } else {
-      // Normal request - optimal caching
+      // Normal request - optimal caching (match Netlify function exactly)
       res.set({
         'ETag': serverETag,
-        'Cache-Control': 'public, max-age=2592000, must-revalidate', // 1 month browser cache
-        'Netlify-CDN-Cache-Control': 'public, max-age=31536000, must-revalidate', // 1 year CDN cache
+        'Cache-Control': 'public, max-age=31536000, must-revalidate', // 1 year cache with must-revalidate
+        'Netlify-CDN-Cache-Control': 'public, max-age=31536000, durable', // Netlify CDN specific
         'Last-Modified': new Date().toUTCString()
       });
     }
