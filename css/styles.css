@@ -1438,7 +1438,7 @@ a {
 .bridal-edit .arrival-image img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: covr;
     transition: transform 0.3s ease;
 }
 
@@ -4544,14 +4544,14 @@ Product details *
     background: #b8975f;
 }
 
-/* Polki Edit Section - Match Static Polki Collection Styling */
+/* Polki Edit Section - Match Bridal Edit Styling */
 .polki-edit {
-    padding: 10px 0 40px 0;
+    padding: 60px 0;
     background-color: #f8f8f5;
 }
 
 .polki-edit-container {
-    width: 100vw;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 20px;
 }
@@ -4579,11 +4579,12 @@ Product details *
 .polki-edit .arrivals-grid {
     display: flex;
     gap: 30px;
+    margin-bottom: 50px;
     overflow-x: auto;
     overflow-y: hidden;
     scroll-behavior: smooth;
-    padding: 0 20px 20px 20px;
-    margin-bottom: 30px;
+    padding: 0 0 20px 0;
+    width: 100%;
 }
 
 .polki-edit .arrival-item {
@@ -4600,22 +4601,23 @@ Product details *
     transform: translateY(-3px);
 }
 
+/* Hide scrollbar for cleaner look */
 .polki-edit .arrivals-grid::-webkit-scrollbar {
     height: 8px;
 }
 
 .polki-edit .arrivals-grid::-webkit-scrollbar-track {
     background: #f1f1f1;
-    border-radius: 10px;
+    border-radius: 4px;
 }
 
 .polki-edit .arrivals-grid::-webkit-scrollbar-thumb {
-    background: #c4a675;
-    border-radius: 10px;
+    background: #ccc;
+    border-radius: 4px;
 }
 
 .polki-edit .arrivals-grid::-webkit-scrollbar-thumb:hover {
-    background: #b8975f;
+    background: #999;
 }
 
 .polki-edit .arrival-image {
