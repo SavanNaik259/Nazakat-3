@@ -1536,10 +1536,181 @@ a {
 }
 
 /* ========================================
-   NEW ARRIVALS PRODUCTS SECTION - SIMILAR TO BRIDAL EDIT
+   NEW ARRIVALS PRODUCTS SECTION - HORIZONTAL SCROLL DESIGN MATCHING PRODUCT CATEGORIES
    ======================================== */
 
 /* Main new arrivals products section */
+.new-arrivals-products {
+    margin: 0px 0 60px 0;
+    padding: 8px 0;
+    width: 100%;
+    overflow: hidden;
+    background-color: #f8f8f5;
+}
+
+/* Product scroll container styling to match you-may-also-like */
+.new-arrivals-products .product-scroll-container {
+    display: flex;
+    gap: 0px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    padding: 0 0 20px 20px;
+    width: 100%;
+}
+
+/* Hide scrollbar for cleaner look */
+.new-arrivals-products .product-scroll-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.new-arrivals-products .product-scroll-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.new-arrivals-products .product-scroll-container::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+.new-arrivals-products .product-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* Product items styled exactly like you-may-also-like */
+.new-arrivals-products .product-item {
+    background: none;
+    border: none;
+    box-shadow: none;
+    overflow: hidden;
+    flex: 0 0 350px;
+    width: 350px;
+    transition: transform 0.3s ease;
+}
+
+.new-arrivals-products .product-item:hover {
+    transform: translateY(-3px);
+}
+
+/* Product images - exact match to you-may-also-like heights */
+.new-arrivals-products .product-image {
+    width: 100%;
+    height: 480px;
+    overflow: hidden;
+    position: relative;
+}
+
+.new-arrivals-products .product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.new-arrivals-products .product-item:hover .product-image img {
+    transform: scale(1.05);
+}
+
+/* Product details */
+.new-arrivals-products .product-details {
+    padding: 20px 15px 15px 15px;
+    text-align: center;
+    margin: 0;
+}
+
+.new-arrivals-products .product-name {
+    font-family: 'Futura PT', 'Futura', 'Century Gothic', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #333;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    line-height: 1.4;
+}
+
+.new-arrivals-products .current-price {
+    font-family: 'Futura PT', 'Futura', 'Century Gothic', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: #333;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+/* Responsive adjustments for new arrivals - keeping horizontal scroll on all devices */
+@media (max-width: 768px) {
+    .new-arrivals-products {
+       margin: 0px 0 60px 0;
+        padding: 8px 0;
+    }
+
+    .new-arrivals-products .product-scroll-container {
+        gap: 0px;
+    }
+
+    .new-arrivals-products .product-item {
+        flex: 0 0 280px;
+        width: 280px;
+    }
+
+    .new-arrivals-products .product-image {
+        height: 360px;
+    }
+
+    .new-arrivals-products .product-details {
+        padding: 12px 8px 8px 8px;
+    }
+
+    .new-arrivals-products .product-name {
+        font-size: 0.9rem;
+        letter-spacing: 1.5px;
+        margin-bottom: 8px;
+    }
+
+    .new-arrivals-products .current-price {
+        font-size: 1rem;
+        letter-spacing: 0.8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .new-arrivals-products {
+        margin: 0px 0 60px 0;
+        padding: 5px 0;
+    }
+
+    .new-arrivals-products .product-scroll-container {
+        gap: 0px;
+    }
+
+    .new-arrivals-products .product-item {
+        flex: 0 0 250px;
+        width: 250px;
+    }
+
+    .new-arrivals-products .product-image {
+        height: 320px;
+    }
+
+    .new-arrivals-products .product-details {
+        padding: 10px 6px 6px 6px;
+    }
+
+    .new-arrivals-products .product-name {
+        font-size: 0.85rem;
+        letter-spacing: 1.2px;
+        margin-bottom: 6px;
+    }
+
+    .new-arrivals-products .current-price {
+        font-size: 0.95rem;
+        letter-spacing: 0.6px;
+    }
+}
+
+/* LEGACY STYLING FOR OLD GRID LAYOUT - KEEP FOR BACKWARD COMPATIBILITY */
 .new-arrivals-products {
     padding: 60px 0;
     background-color: #f8f8f5;
