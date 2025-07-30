@@ -4544,6 +4544,129 @@ Product details *
     background: #b8975f;
 }
 
+/* Polki Edit Section - Match Bridal Edit Styling */
+.polki-edit {
+    padding: 60px 0;
+    background-color: #f8f8f5;
+}
+
+.polki-edit-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.polki-edit-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.polki-edit-header .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 15px;
+    font-weight: 400;
+}
+
+.polki-edit-header .section-subtitle {
+    font-size: 1.1rem;
+    color: #666;
+    margin: 0;
+    font-weight: 300;
+}
+
+.polki-edit .arrivals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.polki-edit .arrival-item {
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.polki-edit .arrival-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.polki-edit .arrival-image {
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+    position: relative;
+}
+
+.polki-edit .arrival-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.polki-edit .arrival-item:hover .arrival-image img {
+    transform: scale(1.05);
+}
+
+.polki-edit .arrival-details {
+    padding: 20px;
+    text-align: center;
+}
+
+.polki-edit .arrival-title {
+    font-family: 'Futura PT', 'Futura', 'Century Gothic', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+.polki-edit .product-pricing {
+    margin-top: 10px;
+}
+
+.polki-edit .current-price {
+    font-family: 'Futura PT', 'Futura', 'Century Gothic', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #c4a675;
+    letter-spacing: 1px;
+}
+
+.polki-edit-cta {
+    text-align: center;
+}
+
+.polki-edit .view-all-button {
+    display: inline-block;
+    padding: 15px 40px;
+    background: linear-gradient(135deg, #c4a675 0%, #b8975f 100%);
+    color: #ffffff;
+    text-decoration: none;
+    font-family: 'Futura PT', 'Futura', 'Century Gothic', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(196, 166, 117, 0.3);
+}
+
+.polki-edit .view-all-button:hover {
+    background: linear-gradient(135deg, #b8975f 0%, #a68751 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(196, 166, 117, 0.4);
+}
+
 /* Responsive Design for Polki Collection */
 @media (max-width: 1024px) and (min-width: 769px) {
     .polki-collection-header .section-title {
@@ -4569,6 +4692,23 @@ Product details *
 }
 
 @media (max-width: 768px) {
+    .polki-edit-header .section-title {
+        font-size: 2rem;
+    }
+    
+    .polki-edit-header .section-subtitle {
+        font-size: 1rem;
+    }
+    
+    .polki-edit .arrivals-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .polki-edit .arrival-image {
+        height: 250px;
+    }
+    
     .polki-collection-header .section-title {
         font-size: 2rem;
     }
@@ -4615,6 +4755,19 @@ Product details *
 } 
 
 @media (max-width: 480px) {
+    .polki-edit-header .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .polki-edit .arrivals-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .polki-edit .arrival-image {
+        height: 300px;
+    }
+    
     .polki-collection-header .section-title {
         font-size: 1.8rem;
     }
