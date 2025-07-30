@@ -117,63 +117,158 @@ const BridalProductsLoader = (function() {
         let products = [];
 
         try {
-            // Load products DIRECTLY from Firebase Storage CDN - NO PROXY LAYERS
-            console.log('Loading bridal products DIRECTLY from Firebase Storage CDN...');
+            // Load products EXCLUSIVELY from Firebase Cloud Storage
+            console.log('Loading bridal products from Cloud Storage...');
             
-            // DIRECT Firebase Storage CDN URL - NO PROXY LAYERS
-            const directCDNUrl = `https://firebasestorage.googleapis.com/v0/b/auric-a0c92.firebasestorage.app/o/products%2Fbridal-products.json?alt=media`;
+            let response;
             
-            console.log('🚀 DIRECT CDN ACCESS for Bridal:', directCDNUrl);
-            console.log('🌐 This bypasses all proxy layers for true CDN caching!');
-            
-            // Add cache busting only if absolutely necessary
-            let finalUrl = directCDNUrl;
-            if (forceRefresh || cacheInvalidated) {
-                const timestamp = Date.now();
-                finalUrl += `&cacheBust=${timestamp}`;
-                console.log('Added cache busting parameter:', timestamp);
-            }
-            
-            // Fetch directly from Firebase Storage CDN
-            const response = await fetch(finalUrl, {
-                method: 'GET',
-                cache: (forceRefresh || cacheInvalidated) ? 'no-store' : 'default' // Allow CDN caching
-            });
-            
-            // Handle 404 - file doesn't exist yet
-            if (response.status === 404) {
-                console.log('Bridal products file not found - will show empty state');
-                return [];
-            }
-            
-            if (!response.ok) {
-                throw new Error(`Firebase Storage error: ${response.status} ${response.statusText}`);
-            }
-            
-            // Parse JSON response directly from Firebase Storage
-            const responseText = await response.text();
-            
-            // Handle empty response
-            if (!responseText.trim()) {
-                console.log('Empty response from Firebase Storage');
-                return [];
-            }
-            
-            try {
-                products = JSON.parse(responseText);
-                console.log('Successfully loaded products directly from Firebase Storage CDN:', products.length);
+            // On deployed sites, use Netlify function instead of direct Firebase Storage CDN
+            if (window.location.hostname.includes('netlify') || window.location.hostname.includes('.app')) {
+                console.log('Deployed site detected - using Netlify function endpoint');
                 
-                // Store ETag for future cache validation
+                // Use Netlify function endpoint for proper cache control
+                let netlifyEndpoint = '/.netlify/functions/load-products?category=bridal';
+                
+                // Add cache busting parameter if force refresh or cache invalidated
+                if (forceRefresh || cacheInvalidated) {
+                    const timestamp = Date.now();
+                    netlifyEndpoint += `&cacheBust=${timestamp}`;
+                    console.log('Added cache busting parameter:', timestamp);
+                }
+                
+                // Prepare headers for cache control
+                const netlifyHeaders = {
+                    'Content-Type': 'application/json'
+                };
+                
+                // Add cache control headers for force refresh
+                if (forceRefresh || cacheInvalidated) {
+                    netlifyHeaders['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+                    netlifyHeaders['Pragma'] = 'no-cache';
+                    netlifyHeaders['Expires'] = '0';
+                }
+                
+                // Add ETag for cache validation (only if not forcing refresh and cache not invalidated)
+                const storedETag = localStorage.getItem('bridalProductsETag');
+                if (!forceRefresh && !cacheInvalidated && storedETag) {
+                    netlifyHeaders['If-None-Match'] = storedETag;
+                    console.log('Adding If-None-Match header:', storedETag.substring(0, 12) + '...');
+                }
+                
+                console.log('Netlify endpoint:', netlifyEndpoint);
+                console.log('Request headers:', netlifyHeaders);
+                
+                response = await fetch(netlifyEndpoint, {
+                    method: 'GET',
+                    headers: netlifyHeaders,
+                    cache: (forceRefresh || cacheInvalidated) ? 'no-store' : 'default'
+                });
+                
+                // Handle 304 Not Modified (only if we weren't forcing refresh)
+                if (response.status === 304 && !forceRefresh && !cacheInvalidated) {
+                    console.log('304 Not Modified - using cached products');
+                    const stored = localStorage.getItem('bridalProducts');
+                    if (stored) {
+                        try {
+                            cachedProducts = JSON.parse(stored);
+                            lastFetchTime = now;
+                            console.log('Returning cached products from 304:', cachedProducts.length);
+                            return cachedProducts;
+                        } catch (e) {
+                            console.warn('Error parsing cached products, forcing fresh load');
+                            return await loadBridalProducts(true); // Force refresh
+                        }
+                    } else {
+                        console.warn('304 received but no cached products available, forcing fresh load');
+                        return await loadBridalProducts(true); // Force refresh
+                    }
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`Netlify function error: ${response.status} ${response.statusText}`);
+                }
+                
+                // Store new ETag for next request
                 const newETag = response.headers.get('etag');
                 if (newETag) {
                     cachedETag = newETag;
-                    localStorage.setItem('bridalProductsETag', newETag);
                     console.log('Stored new ETag:', newETag.substring(0, 12) + '...');
                 }
-            } catch (parseError) {
-                console.error('Error parsing JSON response:', parseError);
-                console.log('Response text:', responseText.substring(0, 200) + '...');
-                return [];
+                
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to load bridal products from Netlify function');
+                }
+                
+                products = data.products || [];
+                console.log('Successfully loaded products via Netlify function:', products.length);
+            } else {
+                // Local development - use server endpoint
+                console.log('Local development detected - using server endpoint');
+                
+                const apiEndpoint = '/api/load-products/bridal';
+                
+                // Prepare headers for cache validation
+                const requestHeaders = {
+                    'Content-Type': 'application/json'
+                };
+                
+                // Add ETag for cache validation if we have one
+                const storedETag = localStorage.getItem('bridalProductsETag');
+                if (storedETag && !forceRefresh) {
+                    requestHeaders['If-None-Match'] = storedETag;
+                }
+                
+                response = await fetch(apiEndpoint, {
+                    method: 'GET',
+                    headers: requestHeaders,
+                    cache: 'default'
+                });
+                
+                // Handle 304 Not Modified responses
+                if (response.status === 304) {
+                    console.log('Products not modified, using local cache');
+                    const stored = localStorage.getItem('bridalProducts');
+                    if (stored) {
+                        cachedProducts = JSON.parse(stored);
+                        lastFetchTime = now;
+                        return cachedProducts;
+                    }
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                }
+                
+                // Store ETag for future requests
+                const responseETag = response.headers.get('ETag') || response.headers.get('etag');
+                if (responseETag) {
+                    localStorage.setItem('bridalProductsETag', responseETag);
+                    cachedETag = responseETag;
+                    console.log('Stored new ETag:', responseETag.substring(0, 12) + '...');
+                }
+                
+                const data = await response.json();
+                if (!data.success) {
+                    console.error('Server returned error:', data.error);
+                    console.error('Error message:', data.message);
+                    
+                    // Check if this is a Firebase configuration error on Netlify
+                    if (data.error && data.error.includes('Firebase Admin not configured')) {
+                        console.error('NETLIFY DEPLOYMENT ISSUE: Firebase Admin credentials not set up');
+                        console.error('Please check NETLIFY_DEPLOYMENT_FIX.md for setup instructions');
+                    }
+                    
+                    products = data.products || [];
+                    
+                    // If no products and there's an error, show a helpful message
+                    if (products.length === 0 && data.error) {
+                        console.error('No products loaded due to error:', data.error);
+                    }
+                } else {
+                    products = data.products || [];
+                }
+                console.log('Successfully loaded products via server:', products.length);
             }
             
             // Validate and filter products
