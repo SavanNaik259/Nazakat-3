@@ -1536,6 +1536,314 @@ a {
 }
 
 /* ========================================
+   NEW ARRIVALS PRODUCTS SECTION - SIMILAR TO BRIDAL EDIT
+   ======================================== */
+
+/* Main new arrivals products section */
+.new-arrivals-products {
+    padding: 60px 0;
+    background-color: #f8f8f5;
+}
+
+.new-arrivals-products .new-arrivals-container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Product grid - horizontal scrolling for desktop */
+.new-arrivals-products .arrivals-grid {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 50px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    padding: 0 0 20px 0;
+    width: 100%;
+}
+
+/* Hide scrollbar for cleaner look */
+.new-arrivals-products .arrivals-grid::-webkit-scrollbar {
+    height: 8px;
+}
+
+.new-arrivals-products .arrivals-grid::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.new-arrivals-products .arrivals-grid::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+.new-arrivals-products .arrivals-grid::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* Individual product cards - clean design without backgrounds or shadows */
+.new-arrivals-products .arrival-item {
+    background: none;
+    border: none;
+    box-shadow: none;
+    overflow: hidden;
+    flex: 0 0 350px;
+    width: 350px;
+    transition: transform 0.3s ease;
+}
+
+.new-arrivals-products .arrival-item:hover {
+    transform: translateY(-3px);
+}
+
+/* Product images */
+.new-arrivals-products .arrival-image {
+    width: 100%;
+    height: 480px;
+    overflow: hidden;
+    position: relative;
+}
+
+.new-arrivals-products .arrival-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.new-arrivals-products .arrival-item:hover .arrival-image img {
+    transform: scale(1.05);
+}
+
+/* Product details */
+.new-arrivals-products .arrival-details {
+    padding: 20px 15px 15px 15px;
+    text-align: center;
+    margin: 0;
+}
+
+.new-arrivals-products .arrival-title {
+    font-family: 'Futura PT', 'Futura', 'Century Gothic', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #333;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    line-height: 1.4;
+}
+
+.new-arrivals-products .current-price {
+    font-family: 'Futura PT', 'Futura', 'Century Gothic', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: #333;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+/* CTA button section */
+.new-arrivals-products .new-arrivals-cta {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.new-arrivals-products .view-all-button {
+    display: inline-block;
+    padding: 15px 40px;
+    background-color: #5a3f2a;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.new-arrivals-products .view-all-button:hover {
+    background-color: #5a3f2a;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Clean up any unwanted badges or elements */
+.new-arrivals-products .product-badge,
+.new-arrivals-products .save-badge,
+.new-arrivals-products .arrival-new {
+    display: none;
+}
+
+/* Loading state for dynamic products */
+.new-arrivals-products .loading-products {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    font-size: 1.1rem;
+    color: #666;
+    width: 100%;
+    min-height: 200px;
+}
+
+.new-arrivals-products .loading-products::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #333;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 10px;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN FOR NEW ARRIVALS PRODUCTS
+   ======================================== */
+
+/* Large tablets - 3 column grid */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .new-arrivals-products {
+        padding: 50px 0;
+    }
+
+    .new-arrivals-products .new-arrivals-container {
+        width: 100%;
+        padding: 0 20px;
+    }
+
+    .new-arrivals-products .arrivals-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+        overflow-x: visible;
+        padding: 0;
+        width: 100%;
+    }
+
+    .new-arrivals-products .arrival-item {
+        flex: none;
+        width: 100%;
+    }
+
+    .new-arrivals-products .arrival-image {
+        height: 380px;
+    }
+}
+
+/* Small tablets - 2 column grid */
+@media (max-width: 768px) {
+    .new-arrivals-products {
+        padding: 40px 0;
+    }
+
+    .new-arrivals-products .new-arrivals-container {
+        padding: 0 15px;
+    }
+
+    .new-arrivals-products .arrivals-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        column-gap: 15px;
+        row-gap: 15px !important;
+        overflow-x: visible !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .new-arrivals-products .arrival-item {
+        flex: none;
+        width: 100%;
+        margin-bottom: 0 !important;
+    }
+
+    .new-arrivals-products .arrival-image {
+        height: 360px;
+    }
+
+    .new-arrivals-products .arrival-details {
+        padding: 12px 8px 8px 8px;
+    }
+
+    .new-arrivals-products .arrival-title {
+        font-family: 'Futura PT', 'Futura', 'Century Gothic', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+        font-size: 0.9rem;
+        font-weight: 400;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        line-height: 1.4;
+        margin-bottom: 8px;
+    }
+
+    .new-arrivals-products .current-price {
+        font-family: 'Futura PT', 'Futura', 'Century Gothic', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+        font-size: 1rem;
+        font-weight: 400;
+        letter-spacing: 0.8px;
+        margin: 0;
+    }
+}
+
+/* Mobile devices - 2 column grid */
+@media (max-width: 480px) {
+    .new-arrivals-products {
+        padding: 30px 0;
+    }
+
+    .new-arrivals-products .new-arrivals-container {
+        padding: 0 10px;
+    }
+
+    .new-arrivals-products .arrival-image {
+        height: 340px;
+    }
+}
+
+/* Very small mobile devices - still 2 columns */
+@media (max-width: 360px) {
+    .new-arrivals-products .arrivals-grid {
+        column-gap: 10px;
+        row-gap: 10px !important;
+        margin: 0 !important;
+    }
+
+    .new-arrivals-products .arrival-item {
+        flex: none;
+        width: 100%;
+        margin-bottom: 0 !important;
+    }
+
+    .new-arrivals-products .arrival-image {
+        height: 320px;
+    }
+
+    .new-arrivals-products .arrival-details {
+        padding: 8px 5px 5px 5px;
+    }
+
+    .new-arrivals-products .arrival-title {
+        font-family: 'Futura PT', 'Futura', 'Century Gothic', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+        font-size: 0.8rem;
+        font-weight: 400;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        line-height: 1.4;
+        margin-bottom: 5px;
+    }
+
+    .new-arrivals-products .current-price {
+        font-family: 'Futura PT', 'Futura', 'Century Gothic', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+        font-size: 0.85rem;
+        font-weight: 400;
+        letter-spacing: 0.4px;
+        margin: 0;
+    }
+}
+
+/* ========================================
    RESPONSIVE DESIGN FOR BRIDAL EDIT
    ======================================== */
 
