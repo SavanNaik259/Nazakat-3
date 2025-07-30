@@ -596,10 +596,8 @@ a {
 }
 
 .new-arrivals-header {
-
-  /*  justify-content:center;*/
-   /* align-items:center;*/
     text-align: center;
+    margin-top: 60px;
     margin-bottom: 35px!important;
 }
 
@@ -715,7 +713,8 @@ a {
     }
     
     .new-arrivals-header {
-margin-bottom: 10px!important;
+        margin-top: 40px;
+        margin-bottom: 10px!important;
     }
     .arrivals-hero-container {
         height: 60vh;
@@ -755,7 +754,8 @@ margin-bottom: 10px!important;
         font-size: 1.8rem;
     }
     .new-arrivals-header {
-    margin-bottom: 5px!important;
+        margin-top: 30px;
+        margin-bottom: 5px!important;
     }
 
     .arrivals-hero-container {
