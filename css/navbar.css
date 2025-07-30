@@ -267,7 +267,7 @@
 /* Cart and wishlist count styles */
 .wishlist-count, .cart-count {
     position: absolute;
-    top: 1px;
+    top: -1px;
     right: -8px;
     background-color: #c8a97e !important; /* Golden color to match cart badge */
     color: #fff !important;
@@ -322,7 +322,7 @@
     }
 
     .wishlist-count, .cart-count {
-        top: 0px;
+        top: -2px;
         right: -6px;
         font-size: 10px;
         width: 17px;
@@ -433,7 +433,7 @@
     }
 
     .wishlist-count, .cart-count {
-        top: 0px;
+        top: -2px;
         right: -5px;
         font-size: 10px;
         width: 17px;
@@ -663,7 +663,7 @@
     }
 
     .wishlist-count, .cart-count {
-        top: 1px;
+        top: -1px;
         right: -6px;
         font-size: 10px;
         width: 16px;
@@ -697,7 +697,7 @@
     }
 
     .wishlist-count, .cart-count {
-        top: 1px;
+        top: -1px;
         right: -5px;
         font-size: 9px;
         width: 15px;
