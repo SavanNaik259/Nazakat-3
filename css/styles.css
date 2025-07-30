@@ -1582,15 +1582,16 @@ a {
 .new-arrivals-products .product-item {
     background: none;
     border: none;
-    box-shadow: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     flex: 0 0 350px;
     width: 350px;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .new-arrivals-products .product-item:hover {
     transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 /* Product images - exact match to you-may-also-like heights */
@@ -1757,15 +1758,16 @@ a {
 .new-arrivals-products .arrival-item {
     background: none;
     border: none;
-    box-shadow: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     flex: 0 0 350px;
     width: 350px;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .new-arrivals-products .arrival-item:hover {
     transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 /* Product images */
