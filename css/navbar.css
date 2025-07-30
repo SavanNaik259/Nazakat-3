@@ -267,7 +267,7 @@
 /* Cart and wishlist count styles */
 .wishlist-count, .cart-count {
     position: absolute;
-    top: 18px;
+    top: 22px;
     right: -3px;
     background-color: #000;
     color: #fff;
@@ -418,7 +418,7 @@
     }
 
     .wishlist-count, .cart-count {
-        top: 16px; /* Adjust for smaller screens */
+        top: 20px; /* Adjust for smaller screens */
         font-size: 9px;
         width: 15px;
         height: 15px;
@@ -645,7 +645,7 @@
     }
 
     .wishlist-count, .cart-count {
-        top: 15px; /* Adjust for medium mobile screens */
+        top: 19px; /* Adjust for medium mobile screens */
         font-size: 9px;
         width: 14px;
         height: 14px;
@@ -676,7 +676,7 @@
     }
 
     .wishlist-count, .cart-count {
-        top: 14px; /* Adjust for small mobile screens */
+        top: 18px; /* Adjust for small mobile screens */
         font-size: 8px;
         width: 13px;
         height: 13px;
