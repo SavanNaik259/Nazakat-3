@@ -269,8 +269,8 @@
     position: absolute;
     top: 8px;
     right: -8px;
-    background-color: #000;
-    color: #fff;
+    background-color: #c8a97e !important; /* Golden color to match cart badge */
+    color: #fff !important;
     font-size: 10px;
     width: 16px;
     height: 16px;
@@ -328,6 +328,7 @@
         width: 15px;
         height: 15px;
         min-width: 15px;
+        background-color: #c8a97e !important;
     }
 
     .brand {
@@ -667,6 +668,7 @@
         width: 14px;
         height: 14px;
         min-width: 14px;
+        background-color: #c8a97e !important;
     }
 }
 
@@ -700,6 +702,7 @@
         width: 13px;
         height: 13px;
         min-width: 13px;
+        background-color: #c8a97e !important;
     }
 
     .nav-menu {

@@ -536,19 +536,7 @@ const WishlistManager = (function() {
                     }
                     
                     .wishlist-count {
-                        position: absolute;
-                        top: -10px; /* Moved up from -8px to -10px */
-                        right: -8px;
-                        background: #c8a97e; /* Match cart badge golden color */
-                        color: #fff;
-                        border-radius: 50%;
-                        width: 16px;
-                        height: 16px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 10px;
-                        font-weight: bold;
+                        /* Badge styling is now handled entirely by navbar.css */
                     }
                     
                     .fa-heart.active {
