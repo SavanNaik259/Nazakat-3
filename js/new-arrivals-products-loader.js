@@ -550,6 +550,15 @@ const NewArrivalsProductsLoader = (function() {
             }
 
             console.log('New arrivals section updated with', products.length, 'products');
+            
+            // Trigger auto-scroll for the new arrivals section after products are loaded
+            setTimeout(() => {
+                if (typeof autoScrollNewArrivalsSection === 'function') {
+                    autoScrollNewArrivalsSection();
+                } else if (window.autoScrollNewArrivalsSection) {
+                    window.autoScrollNewArrivalsSection();
+                }
+            }, 200); // Small delay to ensure DOM is updated
         } catch (error) {
             console.error('Error updating new arrivals section:', error);
             console.error('Error details:', {

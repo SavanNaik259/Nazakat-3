@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Wait for content to load before scrolling
     setTimeout(function() {
         autoScrollProductCategory();
+        autoScrollNewArrivalsSection();
     }, 1000); // Increased timeout to ensure all content is loaded
 });
 
@@ -15,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
 window.addEventListener('load', function() {
     setTimeout(function() {
         autoScrollProductCategory();
+        autoScrollNewArrivalsSection();
     }, 500);
 });
 
@@ -88,3 +90,78 @@ function autoScrollProductCategory() {
         }, 100);
     }
 }
+
+function autoScrollNewArrivalsSection() {
+    const newArrivalsScrollContainer = document.querySelector('.new-arrivals-products .product-scroll-container');
+    
+    if (!newArrivalsScrollContainer) {
+        console.log('New arrivals scroll container not found');
+        return;
+    }
+
+    const productItems = newArrivalsScrollContainer.querySelectorAll('.product-item');
+    
+    if (productItems.length < 3) {
+        console.log('Not enough new arrivals products to scroll - found:', productItems.length);
+        return;
+    }
+
+    console.log('Starting auto-scroll for new arrivals section');
+
+    // Calculate scroll position to show 2 products scrolled past
+    const firstProduct = productItems[0];
+    const secondProduct = productItems[1];
+    
+    if (firstProduct && secondProduct) {
+        // Ensure elements are rendered before calculating dimensions
+        setTimeout(() => {
+            const firstProductWidth = firstProduct.offsetWidth;
+            const secondProductWidth = secondProduct.offsetWidth;
+            
+            console.log('New arrivals - First product width:', firstProductWidth);
+            console.log('New arrivals - Second product width:', secondProductWidth);
+            
+            if (firstProductWidth === 0 || secondProductWidth === 0) {
+                console.log('New arrivals product dimensions not ready, retrying...');
+                setTimeout(autoScrollNewArrivalsSection, 500);
+                return;
+            }
+            
+            // Calculate gap between products
+            const containerStyles = window.getComputedStyle(newArrivalsScrollContainer);
+            const gap = parseInt(containerStyles.gap) || 5; // Default gap from CSS
+            
+            // Calculate scroll position to center the second product card
+            const containerWidth = newArrivalsScrollContainer.clientWidth;
+            
+            // Responsive calculation based on screen size
+            let scrollAmount;
+            if (containerWidth <= 480) {
+                // Small mobile devices - show more of the second product
+                scrollAmount = firstProductWidth + gap + (secondProductWidth * 0.73);
+            } else if (containerWidth <= 768) {
+                // Medium mobile devices and tablets
+                scrollAmount = firstProductWidth + gap + (secondProductWidth * 0.67);
+            } else {
+                // Desktop - your original calculation works fine
+                scrollAmount = firstProductWidth + gap + (secondProductWidth / 2);
+            }
+            
+            console.log('New arrivals - Container width:', containerWidth);
+            console.log('New arrivals - Device type:', containerWidth <= 480 ? 'Small mobile' : containerWidth <= 768 ? 'Medium mobile' : 'Desktop');
+            console.log('New arrivals - Calculated scroll amount:', scrollAmount);
+            
+            // Smooth scroll to the calculated position
+            newArrivalsScrollContainer.scrollTo({
+                left: Math.max(0, scrollAmount),
+                behavior: 'smooth'
+            });
+            
+            console.log('Auto-scrolled new arrivals section to center second product');
+        }, 100);
+    }
+}
+
+// Make functions globally available
+window.autoScrollProductCategory = autoScrollProductCategory;
+window.autoScrollNewArrivalsSection = autoScrollNewArrivalsSection;
