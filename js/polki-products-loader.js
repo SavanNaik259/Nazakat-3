@@ -523,7 +523,6 @@ const PolkiProductsLoader = (function() {
                 console.log('Firebase products found, showing only Firebase products');
                 const firebaseProductsHTML = products.map(product => generateProductHTML(product)).join('');
                 polkiGrid.innerHTML = firebaseProductsHTML;
-                console.log('Polki products HTML generated:', firebaseProductsHTML.substring(0, 200) + '...');
             } else {
                 // No Firebase products found - show message
                 console.log('No products found in Firebase');
@@ -552,14 +551,6 @@ const PolkiProductsLoader = (function() {
             }
 
             console.log('Polki section updated with', products.length, 'products');
-            console.log('Products data:', products);
-            
-            // Debug: Check if polki grid exists and has content
-            const finalPolkiGrid = document.querySelector('.polki-edit .arrivals-grid');
-            if (finalPolkiGrid) {
-                console.log('Final polki grid HTML length:', finalPolkiGrid.innerHTML.length);
-                console.log('Final polki grid children count:', finalPolkiGrid.children.length);
-            }
         } catch (error) {
             console.error('Error updating polki section:', error);
             console.error('Error details:', {
