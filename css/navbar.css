@@ -267,14 +267,14 @@
 /* Cart and wishlist count styles */
 .wishlist-count, .cart-count {
     position: absolute;
-    top: 8px;
+    top: 3px;
     right: -8px;
     background-color: #c8a97e !important; /* Golden color to match cart badge */
     color: #fff !important;
-    font-size: 10px;
-    width: 16px;
-    height: 16px;
-    min-width: 16px;
+    font-size: 11px;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -322,12 +322,12 @@
     }
 
     .wishlist-count, .cart-count {
-        top: 6px;
+        top: 2px;
         right: -6px;
-        font-size: 9px;
-        width: 15px;
-        height: 15px;
-        min-width: 15px;
+        font-size: 10px;
+        width: 17px;
+        height: 17px;
+        min-width: 17px;
         background-color: #c8a97e !important;
     }
 
@@ -433,12 +433,13 @@
     }
 
     .wishlist-count, .cart-count {
-        top: 7px;
+        top: 2px;
         right: -5px;
-        font-size: 9px;
-        width: 15px;
-        height: 15px;
-        min-width: 15px;
+        font-size: 10px;
+        width: 17px;
+        height: 17px;
+        min-width: 17px;
+        background-color: #c8a97e !important;
     }
 
     .close-menu {
@@ -662,12 +663,12 @@
     }
 
     .wishlist-count, .cart-count {
-        top: 8px;
+        top: 3px;
         right: -6px;
-        font-size: 9px;
-        width: 14px;
-        height: 14px;
-        min-width: 14px;
+        font-size: 10px;
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
         background-color: #c8a97e !important;
     }
 }
@@ -696,12 +697,12 @@
     }
 
     .wishlist-count, .cart-count {
-        top: 7px;
+        top: 3px;
         right: -5px;
-        font-size: 8px;
-        width: 13px;
-        height: 13px;
-        min-width: 13px;
+        font-size: 9px;
+        width: 15px;
+        height: 15px;
+        min-width: 15px;
         background-color: #c8a97e !important;
     }
 
