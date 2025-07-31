@@ -123,8 +123,8 @@ const NewArrivalsProductsLoader = (function() {
             
             let response;
             
-            // On deployed sites, use Netlify function instead of direct Firebase Storage CDN
-            if (window.location.hostname.includes('netlify') || window.location.hostname.includes('.app')) {
+            // Use Netlify function for proper CDN caching (works on both deployed and development)
+            if (true) { // Always use Netlify function for CDN optimization
                 console.log('Deployed site detected - using Netlify function endpoint');
                 
                 // Use Netlify function endpoint for proper cache control
