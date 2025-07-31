@@ -467,7 +467,7 @@ const NewArrivalsProductsLoader = (function() {
     }
 
     /**
-     * Update the New Arrivals section with loaded products using Product Categories Section design
+     * Update the New Arrivals section with loaded products using horizontal scroll layout
      */
     async function updateNewArrivalsSection() {
         // Look for the new arrivals section with horizontal scroll container
@@ -534,26 +534,25 @@ const NewArrivalsProductsLoader = (function() {
             loadingElements.forEach(el => el.remove());
 
             if (products.length > 0) {
-                // Firebase products found - use EXACT Product Categories Section design
+                // Firebase products found - show in horizontal scroll layout like product categories
                 console.log('Firebase products found, showing only Firebase products');
                 
-                // Clear existing content and transform into Product Categories Section layout
+                // Clear existing content and set up horizontal scroll layout
                 newArrivalsGrid.innerHTML = '';
                 newArrivalsGrid.className = 'product-scroll-container';
-                
-                // Apply exact CSS from Product Categories Section
                 newArrivalsGrid.style.cssText = `
                     display: flex;
-                    gap: 0px;
+                    gap: 30px;
                     overflow-x: auto;
                     overflow-y: hidden;
                     scroll-behavior: smooth;
-                    padding: 0 0 20px 20px;
+                    padding: 0 20px 20px 20px;
+                    margin-bottom: 30px;
                     width: 100%;
                 `;
                 
-                // Generate product HTML using EXACT Product Categories Section design
-                const firebaseProductsHTML = products.map(product => generateProductCategoriesHTML(product)).join('');
+                // Generate product HTML using product category design
+                const firebaseProductsHTML = products.map(product => generateProductCategoryHTML(product)).join('');
                 newArrivalsGrid.innerHTML = firebaseProductsHTML;
                 
             } else {
@@ -612,9 +611,9 @@ const NewArrivalsProductsLoader = (function() {
     }
 
     /**
-     * Generate HTML for a product item using EXACT Product Categories Section design
+     * Generate HTML for a product item using product category section design
      */
-    function generateProductCategoriesHTML(product) {
+    function generateProductCategoryHTML(product) {
         const formattedPrice = new Intl.NumberFormat('en-IN', {
             style: 'currency',
             currency: 'INR',
@@ -625,8 +624,10 @@ const NewArrivalsProductsLoader = (function() {
             <div class="product-item" data-product-id="${product.id}" style="background: none;">
                 <a href="#" style="text-decoration: none; color: inherit;">
                     <div class="product-image">
-                        <img src="${product.image}" alt="${product.name}">
-                        <button class="add-to-wishlist"><i class="far fa-heart"></i></button>
+                        <img src="${product.image}" alt="${product.name}" loading="lazy">
+                        <button class="add-to-wishlist" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}" data-product-image="${product.image}">
+                            <i class="far fa-heart"></i>
+                        </button>
                     </div>
                     <div class="product-details" style="text-align: center;">
                         <h3 class="product-name">${product.name}</h3>
