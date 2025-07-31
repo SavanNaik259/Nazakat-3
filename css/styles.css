@@ -2414,6 +2414,353 @@ a {
 }
 
 /* ========================================
+   THE POLKI EDIT SECTION - MATCHING BRIDAL/NEW ARRIVALS PATTERN
+   ======================================== */
+
+/* Main polki edit section */
+.polki-edit {
+    padding: 60px 0;
+    background-color: #f8f8f5;
+}
+
+.polki-edit-container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header styling */
+.polki-edit-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.polki-edit-header .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 15px;
+    font-weight: 400;
+}
+
+.polki-edit-header .section-subtitle {
+    font-size: 1.1rem;
+    color: #666;
+    margin: 0;
+    font-weight: 300;
+}
+
+/* Product grid - horizontal scrolling for desktop */
+.polki-edit .arrivals-grid {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 50px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    padding: 0 0 20px 0;
+    width: 100%;
+}
+
+/* Hide scrollbar for cleaner look */
+.polki-edit .arrivals-grid::-webkit-scrollbar {
+    height: 8px;
+}
+
+.polki-edit .arrivals-grid::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.polki-edit .arrivals-grid::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+.polki-edit .arrivals-grid::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* Individual product cards - clean design without backgrounds or shadows */
+.polki-edit .arrival-item {
+    background: none;
+    border: none;
+    box-shadow: none;
+    overflow: hidden;
+    flex: 0 0 350px;
+    width: 350px;
+    transition: transform 0.3s ease;
+}
+
+.polki-edit .arrival-item:hover {
+    transform: translateY(-3px);
+}
+
+/* Product images */
+.polki-edit .arrival-image {
+    width: 100%;
+    height: 480px;
+    overflow: hidden;
+    position: relative;
+}
+
+.polki-edit .arrival-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.polki-edit .arrival-item:hover .arrival-image img {
+    transform: scale(1.05);
+}
+
+/* Product details */
+.polki-edit .arrival-details {
+    padding: 20px 15px 15px 15px;
+    text-align: center;
+    margin: 0;
+}
+
+.polki-edit .arrival-title {
+    font-family: 'Futura PT', 'Futura', 'Century Gothic', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #333;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    line-height: 1.4;
+}
+
+.polki-edit .current-price {
+    font-family: 'Futura PT', 'Futura', 'Century Gothic', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: #333;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+/* CTA button section */
+.polki-edit-cta {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.polki-edit-cta .view-all-button {
+    display: inline-block;
+    padding: 15px 40px;
+    background: linear-gradient(135deg, #d4af37, #b8941f);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.polki-edit-cta .view-all-button:hover {
+    background: linear-gradient(135deg, #b8941f, #9a7b1a);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Clean up any unwanted badges or elements */
+.polki-edit .product-badge,
+.polki-edit .save-badge,
+.polki-edit .arrival-new {
+    display: none;
+}
+
+/* Loading state for dynamic products */
+.polki-edit .loading-products {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    font-size: 1.1rem;
+    color: #666;
+    width: 100%;
+    min-height: 200px;
+}
+
+.polki-edit .loading-products::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #333;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 10px;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN FOR POLKI EDIT
+   ======================================== */
+
+/* Large tablets - 3 column grid */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .polki-edit {
+        padding: 50px 0;
+    }
+
+    .polki-edit-container {
+        width: 100%;
+        padding: 0 20px;
+    }
+
+    .polki-edit .arrivals-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+        overflow-x: visible;
+        padding: 0;
+        width: 100%;
+    }
+
+    .polki-edit .arrival-item {
+        flex: none;
+        width: 100%;
+    }
+
+    .polki-edit .arrival-image {
+        height: 380px;
+    }
+
+    .polki-edit-header .section-title {
+        font-size: 2.2rem;
+    }
+}
+
+/* Small tablets - 2 column grid */
+@media (max-width: 768px) {
+    .polki-edit {
+        padding: 40px 0;
+    }
+
+    .polki-edit-container {
+        padding: 0 15px;
+    }
+
+    .polki-edit .arrivals-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        column-gap: 15px;
+        row-gap: 15px !important;
+        overflow-x: visible !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .polki-edit .arrival-item {
+        flex: none;
+        width: 100%;
+        margin-bottom: 0 !important;
+    }
+
+    .polki-edit .arrival-image {
+        height: 360px;
+    }
+
+    .polki-edit .arrival-details {
+        padding: 12px 8px 8px 8px;
+    }
+
+    .polki-edit .arrival-title {
+        font-family: 'Futura PT', 'Futura', 'Century Gothic', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+        font-size: 0.9rem;
+        font-weight: 400;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        line-height: 1.4;
+        margin-bottom: 8px;
+    }
+
+    .polki-edit .current-price {
+        font-family: 'Futura PT', 'Futura', 'Century Gothic', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+        font-size: 1rem;
+        font-weight: 400;
+        letter-spacing: 0.8px;
+        margin: 0;
+    }
+
+    .polki-edit-header .section-title {
+        font-size: 2rem;
+    }
+}
+
+/* Mobile devices - 2 column grid */
+@media (max-width: 480px) {
+    .polki-edit {
+        padding: 30px 0;
+    }
+
+    .polki-edit-container {
+        padding: 0 10px;
+    }
+
+    .polki-edit .arrivals-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        column-gap: 12px;
+        row-gap: 12px !important;
+        overflow-x: visible !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .polki-edit .arrival-item {
+        flex: none;
+        width: 100%;
+        margin-bottom: 0 !important;
+    }
+
+    .polki-edit .arrival-image {
+        height: 340px;
+    }
+
+    .polki-edit .arrival-details {
+        padding: 10px 6px 6px 6px;
+    }
+
+    .polki-edit .arrival-title {
+        font-family: 'Futura PT', 'Futura', 'Century Gothic', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+        font-size: 0.85rem;
+        font-weight: 400;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        line-height: 1.4;
+        margin-bottom: 6px;
+    }
+
+    .polki-edit .current-price {
+        font-family: 'Futura PT', 'Futura', 'Century Gothic', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
+        font-size: 0.95rem;
+        font-weight: 400;
+        letter-spacing: 0.6px;
+        margin: 0;
+    }
+
+    .polki-edit-header .section-title {
+        font-size: 1.8rem;
+    }
+
+    .polki-edit-header .section-subtitle {
+        font-size: 1rem;
+    }
+
+    .polki-edit-cta .view-all-button {
+        padding: 12px 30px;
+        font-size: 0.9rem;
+    }
+}
+
+/* ========================================
    RESPONSIVE DESIGN FOR BRIDAL EDIT
    ======================================== */
 

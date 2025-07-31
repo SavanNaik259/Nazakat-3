@@ -1,2 +1,43 @@
 
-[]
+[
+  {
+    "id": "PKN-1753956800001-traditional-polki-necklace",
+    "name": "Traditional Polki Necklace Set",
+    "price": 245000,
+    "image": "490A9712.jpg",
+    "description": "Exquisite traditional polki necklace set with intricate craftsmanship featuring uncut diamonds and gold work",
+    "category": "polki",
+    "stock": 3,
+    "createdAt": "2025-01-31T10:15:00Z"
+  },
+  {
+    "id": "PKB-1753956800002-royal-polki-bangles",
+    "name": "Royal Polki Bangles",
+    "price": 185000,
+    "image": "490A9757.jpg",
+    "description": "Stunning royal polki bangles with traditional motifs and precious stones",
+    "category": "polki",
+    "stock": 5,
+    "createdAt": "2025-01-31T10:16:00Z"
+  },
+  {
+    "id": "PKE-1753956800003-polki-earrings-collection",
+    "name": "Polki Earrings Collection",
+    "price": 125000,
+    "image": "6Y4A6534.jpg",
+    "description": "Elegant polki earrings featuring traditional polki work with premium gold setting",
+    "category": "polki",
+    "stock": 4,
+    "createdAt": "2025-01-31T10:17:00Z"
+  },
+  {
+    "id": "PKS-1753956800004-complete-polki-set",
+    "name": "Complete Polki Bridal Set",
+    "price": 315000,
+    "image": "490A9761.jpg",
+    "description": "Complete bridal polki jewelry set including necklace, earrings, and bangles with authentic polki craftsmanship",
+    "category": "polki",
+    "stock": 2,
+    "createdAt": "2025-01-31T10:18:00Z"
+  }
+]
