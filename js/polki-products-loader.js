@@ -122,8 +122,8 @@ const PolkiProductsLoader = (function() {
             
             let response;
             
-            // On deployed sites, use Netlify function instead of direct Firebase Storage CDN
-            if (window.location.hostname.includes('netlify') || window.location.hostname.includes('.app')) {
+            // Use Netlify function for proper CDN caching (works on both deployed and development)
+            if (true) { // Always use Netlify function for CDN optimization
                 console.log('Deployed site detected - using Netlify function endpoint');
                 
                 // Use Netlify function endpoint for proper cache control
@@ -302,6 +302,10 @@ const PolkiProductsLoader = (function() {
                     localStorage.removeItem('lastProductUpdate');
                     console.log('✅ Cleared cache invalidation flag after successful fresh load');
                 }
+                
+                // Clear the invalidation flag immediately to prevent continuous cache busting
+                localStorage.removeItem('lastProductUpdate');
+                console.log('✅ Cleared cache invalidation flag to restore CDN caching');
             } catch (e) {
                 console.warn('Error saving to localStorage cache:', e);
             }
