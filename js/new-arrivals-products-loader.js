@@ -85,6 +85,9 @@ const NewArrivalsProductsLoader = (function() {
                 console.log('🚨 Cache invalidated by admin panel update:', new Date(updateTime));
                 cacheInvalidated = true;
                 forceRefresh = true;
+                // Clear the invalidation flag immediately to prevent continuous cache busting
+                localStorage.removeItem('lastProductUpdate');
+                console.log('✅ Cleared cache invalidation flag to restore CDN caching');
             }
         }
 
