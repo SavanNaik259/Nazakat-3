@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Test Images - Auric Jewelry</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .upload-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .file-input {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #005a8b;
+        }
+        .progress {
+            width: 100%;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #007cba;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #e6ffe6;
+            color: green;
+        }
+        .error {
+            background: #ffe6e6;
+            color: red;
+        }
+        .info {
+            background: #e6f3ff;
+            color: #0066cc;
+        }
+        .uploaded-image {
+            max-width: 200px;
+            max-height: 200px;
+            border: 1px solid #ccc;
+            margin: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <h1>📤 Upload Test Images</h1>
+    <p>Upload test images to Firebase Storage for testing the image proxy CDN caching functionality.</p>
+
+    <div class="upload-section">
+        <h2>Upload Images</h2>
+        <input type="file" id="fileInput" class="file-input" accept="image/*" multiple>
+        <button onclick="uploadImages()">Upload Test Images</button>
+        
+        <div class="progress" id="progressContainer" style="display: none;">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <div id="status"></div>
+        <div id="uploadedImages"></div>
+    </div>
+
+    <div class="upload-section">
+        <h2>Quick Test Images</h2>
+        <p>Or create some simple test images automatically:</p>
+        <button onclick="createTestImages()">Create Test Images</button>
+        <div id="testImagesStatus"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCrLCButDevLeILcBjrUCd9e7amXVjW-uI",
+            authDomain: "auric-a0c92.firebaseapp.com",
+            projectId: "auric-a0c92",
+            storageBucket: "auric-a0c92.firebasestorage.app",
+            messagingSenderId: "878979958342",
+            appId: "1:878979958342:web:e6092f7522488d21eaec47",
+            measurementId: "G-ZYZ750JHMB"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const storage = firebase.storage();
+
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function updateProgress(percent) {
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            
+            if (percent > 0) {
+                progressContainer.style.display = 'block';
+                progressBar.style.width = percent + '%';
+            } else {
+                progressContainer.style.display = 'none';
+            }
+        }
+
+        async function uploadImages() {
+            const fileInput = document.getElementById('fileInput');
+            const files = fileInput.files;
+            
+            if (files.length === 0) {
+                showStatus('Please select at least one image file.', 'error');
+                return;
+            }
+
+            showStatus('Uploading images...', 'info');
+            
+            try {
+                const uploadedImages = document.getElementById('uploadedImages');
+                uploadedImages.innerHTML = '';
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const fileName = `test-${Date.now()}-${i}.jpg`;
+                    const storageRef = storage.ref(`productImages/${fileName}`);
+                    
+                    // Upload file
+                    const uploadTask = storageRef.put(file, {
+                        contentType: file.type,
+                        cacheControl: 'public, max-age=2592000' // 30 days
+                    });
+                    
+                    // Monitor upload progress
+                    uploadTask.on('state_changed', 
+                        (snapshot) => {
+                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                            updateProgress(progress);
+                        },
+                        (error) => {
+                            console.error('Upload error:', error);
+                            showStatus(`Error uploading ${file.name}: ${error.message}`, 'error');
+                        },
+                        async () => {
+                            // Upload completed successfully
+                            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                            
+                            // Display uploaded image
+                            const img = document.createElement('img');
+                            img.src = downloadURL;
+                            img.className = 'uploaded-image';
+                            img.alt = fileName;
+                            uploadedImages.appendChild(img);
+                            
+                            showStatus(`✅ Uploaded: ${fileName}`, 'success');
+                            
+                            // Test the image proxy immediately
+                            testImageProxy(fileName);
+                        }
+                    );
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testImageProxy(imagePath) {
+            const proxyUrl = `/.netlify/functions/image-proxy?path=productImages/${imagePath}`;
+            
+            try {
+                const response = await fetch(proxyUrl);
+                if (response.ok) {
+                    console.log(`✅ Image proxy test successful for: ${imagePath}`);
+                    const cacheControl = response.headers.get('cache-control');
+                    const netlifyCache = response.headers.get('netlify-cdn-cache-control');
+                    console.log(`Cache-Control: ${cacheControl}`);
+                    console.log(`Netlify-CDN-Cache-Control: ${netlifyCache}`);
+                } else {
+                    console.error(`❌ Image proxy test failed for: ${imagePath} (${response.status})`);
+                }
+            } catch (error) {
+                console.error(`❌ Image proxy test error for: ${imagePath}`, error);
+            }
+        }
+
+        async function createTestImages() {
+            const testImagesStatus = document.getElementById('testImagesStatus');
+            testImagesStatus.innerHTML = '<div class="status info">Creating test images...</div>';
+            
+            try {
+                // Create simple colored squares as test images
+                const colors = ['red', 'blue', 'green'];
+                
+                for (let i = 0; i < colors.length; i++) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 200;
+                    canvas.height = 200;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Fill with solid color
+                    ctx.fillStyle = colors[i];
+                    ctx.fillRect(0, 0, 200, 200);
+                    
+                    // Add text
+                    ctx.fillStyle = 'white';
+                    ctx.font = '20px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`Test ${i + 1}`, 100, 100);
+                    ctx.fillText(colors[i], 100, 130);
+                    
+                    // Convert to blob
+                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.8));
+                    
+                    // Upload to Firebase Storage
+                    const fileName = `test${i + 1}.jpg`;
+                    const storageRef = storage.ref(`productImages/${fileName}`);
+                    
+                    await storageRef.put(blob, {
+                        contentType: 'image/jpeg',
+                        cacheControl: 'public, max-age=2592000'
+                    });
+                    
+                    testImagesStatus.innerHTML += `<div class="status success">✅ Created: ${fileName}</div>`;
+                    
+                    // Test the image proxy
+                    testImageProxy(fileName);
+                }
+                
+                testImagesStatus.innerHTML += '<div class="status success">✅ All test images created successfully!</div>';
+                
+            } catch (error) {
+                console.error('Error creating test images:', error);
+                testImagesStatus.innerHTML += `<div class="status error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        // Initialize
+        showStatus('Ready to upload test images for image proxy testing.', 'info');
+    </script>
+</body>
+</html>

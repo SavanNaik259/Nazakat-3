@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final CDN Bandwidth Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-section h2 {
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+        .test-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            min-height: 100px;
+        }
+        .success { border-left: 4px solid #28a745; }
+        .error { border-left: 4px solid #dc3545; }
+        .warning { border-left: 4px solid #ffc107; }
+        .info { border-left: 4px solid #17a2b8; }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .stat {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .code {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        .endpoint-test {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Final CDN Bandwidth Test</h1>
+        
+        <div class="test-section">
+            <h2>Test 1: Direct Firebase Storage CDN</h2>
+            <p>This test directly accesses Firebase Storage CDN URLs to verify caching behavior.</p>
+            <div class="test-controls">
+                <button onclick="testDirectCDN()">Test Direct CDN Access</button>
+                <button onclick="testDirectCDNMultiple()">Test Multiple Requests</button>
+            </div>
+            <div class="result info" id="directResult">
+                <strong>How it works:</strong> Direct Firebase Storage URLs with alt=media parameter enable CDN caching. First request per region triggers bandwidth, subsequent requests use cached files.
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 2: Netlify Functions CDN Proxy</h2>
+            <p>This test verifies that Netlify functions properly proxy Firebase Storage CDN URLs.</p>
+            <div class="test-controls">
+                <button onclick="testNetlifyFunction()">Test Netlify Function</button>
+                <button onclick="testNetlifyFunctionMultiple()">Test Multiple Requests</button>
+            </div>
+            <div class="result info" id="netlifyResult">
+                <strong>How it works:</strong> Netlify functions use fetch() to access Firebase Storage CDN URLs, preserving cache headers and CDN behavior.
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 3: Server Proxy CDN</h2>
+            <p>This test verifies local server proxy maintains CDN optimization.</p>
+            <div class="test-controls">
+                <button onclick="testServerProxy()">Test Server Proxy</button>
+                <button onclick="testServerProxyMultiple()">Test Multiple Requests</button>
+            </div>
+            <div class="result info" id="serverResult">
+                <strong>How it works:</strong> Local server acts as proxy, forwarding requests to Firebase Storage CDN while maintaining cache headers.
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 4: Fixed Bandwidth Test Loader</h2>
+            <p>This test verifies the fixed bandwidth test loader no longer uses Firebase SDK.</p>
+            <div class="test-controls">
+                <button onclick="testFixedLoader()">Test Fixed Loader</button>
+                <button onclick="window.open('cdn-bandwidth-test-loader-fixed.html', '_blank')">Open Fixed Loader</button>
+            </div>
+            <div class="result info" id="fixedResult">
+                <strong>Expected behavior:</strong> No Firebase SDK calls, only CDN-optimized endpoints, bandwidth only consumed on first regional access.
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Firebase Console Monitoring</h2>
+            <div class="endpoint-test">
+                <strong>Monitor Firebase Storage Usage:</strong><br>
+                1. Open Firebase Console → Storage → Usage<br>
+                2. Note current "Network egress" value<br>
+                3. Run tests above and observe bandwidth changes<br>
+                4. <strong>Expected:</strong> Bandwidth increases only on first user per region
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let testCount = 0;
+        
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            element.className = `result ${type}`;
+            element.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+        }
+
+        function appendLog(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.innerHTML += `<br>${message}`;
+        }
+
+        function showStats(elementId, stats) {
+            const element = document.getElementById(elementId);
+            const statsHtml = `
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value">${stats.time}ms</div>
+                        <div class="stat-label">Response Time</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">${stats.size}KB</div>
+                        <div class="stat-label">Data Size</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">${stats.status}</div>
+                        <div class="stat-label">HTTP Status</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">${stats.cacheControl || 'None'}</div>
+                        <div class="stat-label">Cache Control</div>
+                    </div>
+                </div>
+            `;
+            element.innerHTML += statsHtml;
+        }
+
+        async function testDirectCDN() {
+            log('directResult', 'Testing direct Firebase Storage CDN access...', 'info');
+            
+            try {
+                const startTime = performance.now();
+                const url = 'https://firebasestorage.googleapis.com/v0/b/auric-a0c92.firebasestorage.app/o/bandwidthTest%2Fbandwidth-test-1-products.json?alt=media';
+                
+                const response = await fetch(url);
+                const endTime = performance.now();
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const stats = {
+                        time: Math.round(endTime - startTime),
+                        size: Math.round(JSON.stringify(data).length / 1024),
+                        status: response.status,
+                        cacheControl: response.headers.get('cache-control')
+                    };
+                    
+                    log('directResult', `✅ SUCCESS: Direct CDN access working! Found ${data.length} products.`, 'success');
+                    showStats('directResult', stats);
+                } else {
+                    log('directResult', `❌ FAILED: HTTP ${response.status} - ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log('directResult', `❌ ERROR: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDirectCDNMultiple() {
+            log('directResult', 'Testing multiple direct CDN requests...', 'info');
+            
+            const url = 'https://firebasestorage.googleapis.com/v0/b/auric-a0c92.firebasestorage.app/o/bandwidthTest%2Fbandwidth-test-1-products.json?alt=media';
+            const results = [];
+            
+            for (let i = 0; i < 3; i++) {
+                try {
+                    const startTime = performance.now();
+                    const response = await fetch(url);
+                    const endTime = performance.now();
+                    
+                    results.push({
+                        request: i + 1,
+                        time: Math.round(endTime - startTime),
+                        status: response.status,
+                        age: response.headers.get('age') || 'N/A'
+                    });
+                } catch (error) {
+                    results.push({
+                        request: i + 1,
+                        error: error.message
+                    });
+                }
+            }
+            
+            log('directResult', '✅ Multiple requests completed:', 'success');
+            results.forEach(result => {
+                if (result.error) {
+                    appendLog('directResult', `Request ${result.request}: ERROR - ${result.error}`);
+                } else {
+                    appendLog('directResult', `Request ${result.request}: ${result.time}ms (Age: ${result.age})`);
+                }
+            });
+        }
+
+        async function testNetlifyFunction() {
+            log('netlifyResult', 'Testing Netlify function CDN proxy...', 'info');
+            
+            try {
+                const startTime = performance.now();
+                const url = '/.netlify/functions/load-products?category=bandwidth-test-1';
+                
+                const response = await fetch(url);
+                const endTime = performance.now();
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const stats = {
+                        time: Math.round(endTime - startTime),
+                        size: Math.round(JSON.stringify(data).length / 1024),
+                        status: response.status,
+                        cacheControl: response.headers.get('cache-control')
+                    };
+                    
+                    log('netlifyResult', `✅ SUCCESS: Netlify function proxy working! Found ${data.products?.length || 0} products.`, 'success');
+                    showStats('netlifyResult', stats);
+                } else {
+                    log('netlifyResult', `❌ FAILED: HTTP ${response.status} - ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log('netlifyResult', `❌ ERROR: ${error.message}`, 'error');
+            }
+        }
+
+        async function testNetlifyFunctionMultiple() {
+            log('netlifyResult', 'Testing multiple Netlify function requests...', 'info');
+            
+            const url = '/.netlify/functions/load-products?category=bandwidth-test-1';
+            const results = [];
+            
+            for (let i = 0; i < 3; i++) {
+                try {
+                    const startTime = performance.now();
+                    const response = await fetch(url);
+                    const endTime = performance.now();
+                    
+                    results.push({
+                        request: i + 1,
+                        time: Math.round(endTime - startTime),
+                        status: response.status,
+                        age: response.headers.get('age') || 'N/A'
+                    });
+                } catch (error) {
+                    results.push({
+                        request: i + 1,
+                        error: error.message
+                    });
+                }
+            }
+            
+            log('netlifyResult', '✅ Multiple requests completed:', 'success');
+            results.forEach(result => {
+                if (result.error) {
+                    appendLog('netlifyResult', `Request ${result.request}: ERROR - ${result.error}`);
+                } else {
+                    appendLog('netlifyResult', `Request ${result.request}: ${result.time}ms (Age: ${result.age})`);
+                }
+            });
+        }
+
+        async function testServerProxy() {
+            log('serverResult', 'Testing server proxy CDN...', 'info');
+            
+            try {
+                const startTime = performance.now();
+                const url = '/api/load-products/bandwidth-test-1';
+                
+                const response = await fetch(url);
+                const endTime = performance.now();
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const stats = {
+                        time: Math.round(endTime - startTime),
+                        size: Math.round(JSON.stringify(data).length / 1024),
+                        status: response.status,
+                        cacheControl: response.headers.get('cache-control')
+                    };
+                    
+                    log('serverResult', `✅ SUCCESS: Server proxy working! Found ${data.products?.length || 0} products.`, 'success');
+                    showStats('serverResult', stats);
+                } else {
+                    log('serverResult', `❌ FAILED: HTTP ${response.status} - ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log('serverResult', `❌ ERROR: ${error.message}`, 'error');
+            }
+        }
+
+        async function testServerProxyMultiple() {
+            log('serverResult', 'Testing multiple server proxy requests...', 'info');
+            
+            const url = '/api/load-products/bandwidth-test-1';
+            const results = [];
+            
+            for (let i = 0; i < 3; i++) {
+                try {
+                    const startTime = performance.now();
+                    const response = await fetch(url);
+                    const endTime = performance.now();
+                    
+                    results.push({
+                        request: i + 1,
+                        time: Math.round(endTime - startTime),
+                        status: response.status,
+                        age: response.headers.get('age') || 'N/A'
+                    });
+                } catch (error) {
+                    results.push({
+                        request: i + 1,
+                        error: error.message
+                    });
+                }
+            }
+            
+            log('serverResult', '✅ Multiple requests completed:', 'success');
+            results.forEach(result => {
+                if (result.error) {
+                    appendLog('serverResult', `Request ${result.request}: ERROR - ${result.error}`);
+                } else {
+                    appendLog('serverResult', `Request ${result.request}: ${result.time}ms (Age: ${result.age})`);
+                }
+            });
+        }
+
+        async function testFixedLoader() {
+            log('fixedResult', 'Testing fixed bandwidth loader...', 'info');
+            
+            // Simulate what the fixed loader does
+            try {
+                const isNetlify = window.location.hostname.includes('netlify.app');
+                const proxyURL = isNetlify 
+                  ? '/.netlify/functions/load-products?category=bandwidth-test-1'
+                  : '/api/load-products/bandwidth-test-1';
+                
+                const startTime = performance.now();
+                const response = await fetch(proxyURL);
+                const endTime = performance.now();
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const stats = {
+                        time: Math.round(endTime - startTime),
+                        size: Math.round(JSON.stringify(data).length / 1024),
+                        status: response.status,
+                        cacheControl: response.headers.get('cache-control')
+                    };
+                    
+                    log('fixedResult', `✅ SUCCESS: Fixed loader simulation working! Using ${isNetlify ? 'Netlify' : 'Server'} endpoint.`, 'success');
+                    appendLog('fixedResult', `Found ${data.products?.length || 0} products with NO Firebase SDK calls.`);
+                    showStats('fixedResult', stats);
+                } else {
+                    log('fixedResult', `❌ FAILED: HTTP ${response.status} - ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log('fixedResult', `❌ ERROR: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-detect environment on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const isNetlify = window.location.hostname.includes('netlify.app');
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            
+            if (isNetlify) {
+                document.title = 'Final CDN Bandwidth Test - Netlify';
+                log('directResult', '🌐 Running on Netlify deployment - CDN testing will show actual behavior', 'success');
+            } else if (isLocal) {
+                document.title = 'Final CDN Bandwidth Test - Local';
+                log('directResult', '🏠 Running locally - CDN simulation via server proxy', 'warning');
+            } else {
+                log('directResult', '❓ Unknown environment - results may vary', 'warning');
+            }
+        });
+    </script>
+</body>
+</html>

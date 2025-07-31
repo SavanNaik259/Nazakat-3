@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Proxy Usage Examples</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .example-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .before, .after {
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .before {
+            background: #ffe6e6;
+            border-left: 4px solid #e74c3c;
+        }
+        .after {
+            background: #e6ffe6;
+            border-left: 4px solid #27ae60;
+        }
+        .code {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+        .test-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .test-image {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+        .test-image img {
+            max-width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .highlight {
+            background: #ffeb3b;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🖼️ Image Proxy Usage Examples</h1>
+    <p>This page shows exactly where and how to replace Firebase Storage URLs with the image proxy URLs in your Auric Jewelry website.</p>
+
+    <div class="example-section">
+        <h2>📍 Where to Replace URLs</h2>
+        <p>In your current code, product images are loaded from Firebase Storage in these locations:</p>
+        
+        <h3>1. Product Data (JSON files)</h3>
+        <div class="before-after">
+            <div class="before">
+                <h4>❌ Before (Direct Firebase URLs)</h4>
+                <div class="code">{
+  "id": "RING-001",
+  "name": "Diamond Ring",
+  "price": 25000,
+  "image": "https://firebasestorage.googleapis.com/v0/b/auric-a0c92.firebasestorage.app/o/productImages%2Fring-001.jpg?alt=media&token=abc123"
+}</div>
+            </div>
+            <div class="after">
+                <h4>✅ After (Image Proxy URLs)</h4>
+                <div class="code">{
+  "id": "RING-001",
+  "name": "Diamond Ring",
+  "price": 25000,
+  "image": "/.netlify/functions/image-proxy?path=productImages/ring-001.jpg"
+}</div>
+            </div>
+        </div>
+
+        <h3>2. Admin Panel (Adding New Products)</h3>
+        <div class="before-after">
+            <div class="before">
+                <h4>❌ Before (Direct Firebase URLs)</h4>
+                <div class="code">// In admin-panel.html
+const downloadURL = await storageRef.getDownloadURL();
+product.image = downloadURL;</div>
+            </div>
+            <div class="after">
+                <h4>✅ After (Image Proxy URLs)</h4>
+                <div class="code">// In admin-panel.html
+const imagePath = `productImages/${fileName}`;
+product.image = `/.netlify/functions/image-proxy?path=${imagePath}`;</div>
+            </div>
+        </div>
+
+        <h3>3. JavaScript Product Display</h3>
+        <div class="before-after">
+            <div class="before">
+                <h4>❌ Before (Direct Firebase URLs)</h4>
+                <div class="code">// When displaying products
+productElement.innerHTML = `
+  &lt;img src="${product.image}" alt="${product.name}"&gt;
+`;
+// product.image contains direct Firebase URL</div>
+            </div>
+            <div class="after">
+                <h4>✅ After (Image Proxy URLs)</h4>
+                <div class="code">// When displaying products
+productElement.innerHTML = `
+  &lt;img src="${product.image}" alt="${product.name}"&gt;
+`;
+// product.image contains proxy URL</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="example-section">
+        <h2>🔧 Implementation Helper Function</h2>
+        <p>Add this helper function to your JavaScript code to easily generate proxy URLs:</p>
+        
+        <div class="code">// Helper function to generate image proxy URLs
+function getImageProxyUrl(imagePath) {
+    // Remove any existing Firebase Storage URL parts
+    const cleanPath = imagePath.replace(/^https:\/\/firebasestorage\.googleapis\.com.*?\/o\//, '')
+                              .replace(/\?.*$/, '')
+                              .replace(/%2F/g, '/');
+    
+    return `/.netlify/functions/image-proxy?path=${encodeURIComponent(cleanPath)}`;
+}
+
+// Usage examples:
+const proxyUrl1 = getImageProxyUrl('productImages/ring-001.jpg');
+const proxyUrl2 = getImageProxyUrl('https://firebasestorage.googleapis.com/v0/b/bucket/o/productImages%2Fring-001.jpg?alt=media');
+// Both return: /.netlify/functions/image-proxy?path=productImages%2Fring-001.jpg</div>
+    </div>
+
+    <div class="example-section">
+        <h2>📋 Step-by-Step Migration</h2>
+        <p>Follow these steps to migrate your existing product images:</p>
+        
+        <h3>Step 1: Update Admin Panel</h3>
+        <p>When adding new products, store proxy URLs instead of direct Firebase URLs:</p>
+        <div class="code">// In your admin panel JavaScript
+// OLD WAY:
+const downloadURL = await storageRef.getDownloadURL();
+newProduct.image = downloadURL;
+
+// NEW WAY:
+const imagePath = `productImages/${fileName}`;
+newProduct.image = `/.netlify/functions/image-proxy?path=${imagePath}`;</div>
+
+        <h3>Step 2: Update Existing Product Data</h3>
+        <p>For products already in your system, you can either:</p>
+        <ul>
+            <li><strong>Option A:</strong> Update the JSON files to use proxy URLs</li>
+            <li><strong>Option B:</strong> Convert URLs dynamically in your JavaScript</li>
+        </ul>
+
+        <h3>Step 3: Test the Implementation</h3>
+        <p>Use the test pages to verify everything works:</p>
+        <ul>
+            <li><code>upload-test-images.html</code> - Upload test images</li>
+            <li><code>test-image-proxy.html</code> - Test proxy functionality</li>
+        </ul>
+    </div>
+
+    <div class="example-section">
+        <h2>🧪 Live Test Examples</h2>
+        <p>These examples show how the image proxy works with real image paths:</p>
+        
+        <div class="test-images">
+            <div class="test-image">
+                <h4>Test Image 1</h4>
+                <img src="/.netlify/functions/image-proxy?path=productImages/test1.jpg" alt="Test 1" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI2Y0ZjRmNCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5Ij5JbWFnZSBOb3QgRm91bmQ8L3RleHQ+PC9zdmc+'; this.alt='Image not found';">
+                <p>Proxy URL: <br><small>/.netlify/functions/image-proxy?path=productImages/test1.jpg</small></p>
+            </div>
+            
+            <div class="test-image">
+                <h4>Test Image 2</h4>
+                <img src="/.netlify/functions/image-proxy?path=productImages/test2.jpg" alt="Test 2" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI2Y0ZjRmNCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5Ij5JbWFnZSBOb3QgRm91bmQ8L3RleHQ+PC9zdmc+'; this.alt='Image not found';">
+                <p>Proxy URL: <br><small>/.netlify/functions/image-proxy?path=productImages/test2.jpg</small></p>
+            </div>
+            
+            <div class="test-image">
+                <h4>Test Image 3</h4>
+                <img src="/.netlify/functions/image-proxy?path=productImages/test3.jpg" alt="Test 3" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI2Y0ZjRmNCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5Ij5JbWFnZSBOb3QgRm91bmQ8L3RleHQ+PC9zdmc+'; this.alt='Image not found';">
+                <p>Proxy URL: <br><small>/.netlify/functions/image-proxy?path=productImages/test3.jpg</small></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="example-section">
+        <h2>💡 Key Points</h2>
+        <ul>
+            <li><strong>URL Format:</strong> <code>/.netlify/functions/image-proxy?path=productImages/filename.jpg</code></li>
+            <li><strong>Path Parameter:</strong> Use the Firebase Storage path (e.g., <code>productImages/ring-001.jpg</code>)</li>
+            <li><strong>Encoding:</strong> URL encode the path parameter for special characters</li>
+            <li><strong>Bandwidth Savings:</strong> First user loads from Firebase, subsequent users get CDN cached version</li>
+            <li><strong>Performance:</strong> Faster loading times globally due to CDN edge caching</li>
+        </ul>
+    </div>
+
+    <div class="example-section">
+        <h2>🔍 Testing Commands</h2>
+        <p>Use these commands to test the image proxy:</p>
+        
+        <div class="code"># Test if image proxy is working
+curl -I "https://your-site.netlify.app/.netlify/functions/image-proxy?path=productImages/test1.jpg"
+
+# Look for these headers in response:
+# Cache-Control: public, max-age=0, must-revalidate
+# Netlify-CDN-Cache-Control: public, max-age=31536000, durable, must-revalidate
+# Content-Type: image/jpeg</div>
+    </div>
+
+    <script>
+        // Log proxy URLs for debugging
+        console.log('Image proxy examples:');
+        console.log('1. /.netlify/functions/image-proxy?path=productImages/test1.jpg');
+        console.log('2. /.netlify/functions/image-proxy?path=productImages/test2.jpg');
+        console.log('3. /.netlify/functions/image-proxy?path=productImages/test3.jpg');
+        
+        // Test helper function
+        function getImageProxyUrl(imagePath) {
+            const cleanPath = imagePath.replace(/^https:\/\/firebasestorage\.googleapis\.com.*?\/o\//, '')
+                                      .replace(/\?.*$/, '')
+                                      .replace(/%2F/g, '/');
+            
+            return `/.netlify/functions/image-proxy?path=${encodeURIComponent(cleanPath)}`;
+        }
+        
+        // Test the helper function
+        console.log('Helper function test:');
+        console.log(getImageProxyUrl('productImages/ring-001.jpg'));
+        console.log(getImageProxyUrl('https://firebasestorage.googleapis.com/v0/b/bucket/o/productImages%2Fring-001.jpg?alt=media'));
+    </script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Netlify Bandwidth Fix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        .logs {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .cache-headers {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Netlify Bandwidth Fix Test</h1>
+        
+        <div class="test-section info">
+            <h3>📊 Test Overview</h3>
+            <p>This test verifies that the Netlify functions now use direct Firebase Storage URLs instead of signed URLs, which should enable proper CDN caching and reduce bandwidth usage.</p>
+            
+            <div class="warning">
+                <strong>⚠️ Important:</strong> This test only works on your deployed Netlify site. The fix involves changing how Netlify functions access Firebase Storage.
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Test Steps</h3>
+            <ol>
+                <li><strong>Deploy the fix:</strong> Make sure your updated Netlify functions are deployed</li>
+                <li><strong>Test regular products:</strong> Load bridal products</li>
+                <li><strong>Test bandwidth test products:</strong> Load bandwidth test products</li>
+                <li><strong>Check cache headers:</strong> Verify proper CDN headers are returned</li>
+                <li><strong>Monitor Firebase:</strong> Check bandwidth usage in Firebase Console</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Test Controls</h3>
+            <button onclick="testRegularProducts()">Test Regular Products</button>
+            <button onclick="testBandwidthTestProducts()">Test Bandwidth Test Products</button>
+            <button onclick="testCacheHeaders()">Check Cache Headers</button>
+            <button onclick="clearLogs()">Clear Logs</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 Test Results</h3>
+            <div id="logs" class="logs">Click a test button to start testing...\n</div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 Cache Headers Analysis</h3>
+            <div id="cacheHeaders" class="cache-headers">
+                Cache headers will appear here after testing...
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Firebase Bandwidth Monitoring</h3>
+            <div class="info">
+                <p><strong>How to monitor:</strong></p>
+                <ol>
+                    <li>Open Firebase Console → Storage → Usage</li>
+                    <li>Note the "Network egress" value before testing</li>
+                    <li>Run the tests above</li>
+                    <li>Check if bandwidth increased (should NOT increase after first load)</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let testCount = 0;
+        
+        function log(message, type = 'info') {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}\n`;
+            logs.textContent += logEntry;
+            logs.scrollTop = logs.scrollHeight;
+        }
+        
+        function clearLogs() {
+            document.getElementById('logs').textContent = '';
+            document.getElementById('cacheHeaders').textContent = 'Cache headers will appear here after testing...';
+        }
+        
+        function displayCacheHeaders(headers, url) {
+            const cacheDiv = document.getElementById('cacheHeaders');
+            let headerText = `URL: ${url}\n`;
+            headerText += `Cache-Control: ${headers.get('cache-control') || 'Not set'}\n`;
+            headerText += `ETag: ${headers.get('etag') || 'Not set'}\n`;
+            headerText += `Last-Modified: ${headers.get('last-modified') || 'Not set'}\n`;
+            headerText += `Content-Type: ${headers.get('content-type') || 'Not set'}\n`;
+            headerText += `Age: ${headers.get('age') || 'Not set'}\n`;
+            headerText += `CF-Cache-Status: ${headers.get('cf-cache-status') || 'Not set'}\n`;
+            cacheDiv.textContent = headerText;
+        }
+        
+        async function testRegularProducts() {
+            testCount++;
+            log(`🧪 Test ${testCount}: Loading regular products (bridal)...`);
+            
+            try {
+                const startTime = performance.now();
+                const response = await fetch('/.netlify/functions/load-products?category=bridal');
+                const endTime = performance.now();
+                const loadTime = Math.round(endTime - startTime);
+                
+                log(`📊 Response time: ${loadTime}ms`);
+                log(`📊 Response status: ${response.status}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Success: Loaded ${data.products.length} bridal products`);
+                    displayCacheHeaders(response.headers, response.url);
+                    
+                    // Check if this looks like CDN behavior
+                    if (loadTime < 500) {
+                        log(`🎉 Fast response (${loadTime}ms) - likely CDN cache hit!`);
+                    } else if (loadTime > 1000) {
+                        log(`⚠️ Slow response (${loadTime}ms) - might be direct Firebase request`);
+                    }
+                } else {
+                    log(`❌ Error: ${response.status} - ${response.statusText}`);
+                }
+            } catch (error) {
+                log(`❌ Error testing regular products: ${error.message}`);
+            }
+        }
+        
+        async function testBandwidthTestProducts() {
+            testCount++;
+            log(`🧪 Test ${testCount}: Loading bandwidth test products...`);
+            
+            try {
+                const startTime = performance.now();
+                const response = await fetch('/.netlify/functions/load-bandwidth-test-products?category=bandwidth-test-1');
+                const endTime = performance.now();
+                const loadTime = Math.round(endTime - startTime);
+                
+                log(`📊 Response time: ${loadTime}ms`);
+                log(`📊 Response status: ${response.status}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Success: Loaded ${data.products.length} bandwidth test products`);
+                    displayCacheHeaders(response.headers, response.url);
+                    
+                    // Check if this looks like CDN behavior
+                    if (loadTime < 500) {
+                        log(`🎉 Fast response (${loadTime}ms) - likely CDN cache hit!`);
+                    } else if (loadTime > 1000) {
+                        log(`⚠️ Slow response (${loadTime}ms) - might be direct Firebase request`);
+                    }
+                } else {
+                    log(`❌ Error: ${response.status} - ${response.statusText}`);
+                }
+            } catch (error) {
+                log(`❌ Error testing bandwidth test products: ${error.message}`);
+            }
+        }
+        
+        async function testCacheHeaders() {
+            log(`🔍 Testing cache headers for both endpoints...`);
+            
+            // Test regular products
+            try {
+                const response1 = await fetch('/.netlify/functions/load-products?category=bridal');
+                log(`📊 Regular products cache headers:`);
+                log(`   Cache-Control: ${response1.headers.get('cache-control') || 'Not set'}`);
+                log(`   ETag: ${response1.headers.get('etag') || 'Not set'}`);
+            } catch (error) {
+                log(`❌ Error checking regular products headers: ${error.message}`);
+            }
+            
+            // Test bandwidth test products
+            try {
+                const response2 = await fetch('/.netlify/functions/load-bandwidth-test-products?category=bandwidth-test-1');
+                log(`📊 Bandwidth test products cache headers:`);
+                log(`   Cache-Control: ${response2.headers.get('cache-control') || 'Not set'}`);
+                log(`   ETag: ${response2.headers.get('etag') || 'Not set'}`);
+            } catch (error) {
+                log(`❌ Error checking bandwidth test products headers: ${error.message}`);
+            }
+        }
+        
+        // Initialize
+        log('🚀 Netlify Bandwidth Fix Test initialized');
+        log('Deploy your updated functions and run the tests above');
+    </script>
+</body>
+</html>

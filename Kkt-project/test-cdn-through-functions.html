@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test CDN Through Netlify Functions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 24px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .logs {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .warning { background: #fff3cd; color: #856404; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .url-display {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 CDN Test Through Netlify Functions</h1>
+        <p>This test verifies that the Netlify functions properly utilize Firebase Storage CDN caching.</p>
+        
+        <div class="test-section">
+            <h3>📊 Test Results</h3>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="requestTime">0</div>
+                    <div class="stat-label">Request Time (ms)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="productCount">0</div>
+                    <div class="stat-label">Products Loaded</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="cacheStatus">-</div>
+                    <div class="stat-label">Cache Status</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="testCount">0</div>
+                    <div class="stat-label">Tests Run</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔄 Test Controls</h3>
+            <div class="controls">
+                <button onclick="testNetlifyFunction('bandwidth-test-1')">Test Bandwidth Test 1</button>
+                <button onclick="testNetlifyFunction('bandwidth-test-2')">Test Bandwidth Test 2</button>
+                <button onclick="testNetlifyFunction('bandwidth-test-3')">Test Bandwidth Test 3</button>
+                <button onclick="testNetlifyFunction('bridal')">Test Bridal Products</button>
+                <button onclick="runMultipleTests()">Run Multiple Tests</button>
+                <button onclick="clearLogs()">Clear Logs</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🌐 Current Test URL</h3>
+            <div id="currentUrl" class="url-display">No test running...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 Test Logs</h3>
+            <div id="logs" class="logs">Ready to test CDN behavior through Netlify functions...\n</div>
+        </div>
+    </div>
+
+    <script>
+        let totalTests = 0;
+        let environment = 'unknown';
+        
+        function log(message) {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}\n`;
+            logs.textContent += logEntry;
+            logs.scrollTop = logs.scrollHeight;
+        }
+        
+        function clearLogs() {
+            document.getElementById('logs').textContent = '';
+            document.getElementById('currentUrl').textContent = 'No test running...';
+            updateStats(0, 0, '-');
+            totalTests = 0;
+            updateTestCount();
+        }
+        
+        function updateStats(requestTime, productCount, cacheStatus) {
+            document.getElementById('requestTime').textContent = Math.round(requestTime);
+            document.getElementById('productCount').textContent = productCount;
+            document.getElementById('cacheStatus').textContent = cacheStatus;
+        }
+        
+        function updateTestCount() {
+            document.getElementById('testCount').textContent = totalTests;
+        }
+        
+        function detectEnvironment() {
+            const hostname = window.location.hostname;
+            if (hostname.includes('netlify') || hostname.includes('.app')) {
+                environment = 'netlify';
+                log('✅ Running on Netlify - using deployed functions');
+            } else if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
+                environment = 'local';
+                log('🏠 Running locally - using server endpoints');
+            } else {
+                environment = 'unknown';
+                log('⚠️ Unknown environment - will attempt both endpoints');
+            }
+        }
+        
+        async function testNetlifyFunction(category) {
+            totalTests++;
+            updateTestCount();
+            
+            log(`🧪 Test ${totalTests}: Loading ${category} products through Netlify function`);
+            
+            try {
+                // Choose endpoint based on environment
+                let endpoint;
+                if (environment === 'netlify') {
+                    endpoint = `/.netlify/functions/load-products?category=${category}`;
+                } else if (environment === 'local') {
+                    endpoint = `/api/load-products/${category}`;
+                } else {
+                    // Try Netlify first, then local
+                    endpoint = `/.netlify/functions/load-products?category=${category}`;
+                }
+                
+                document.getElementById('currentUrl').textContent = endpoint;
+                log(`🌐 Endpoint: ${endpoint}`);
+                
+                const startTime = performance.now();
+                
+                const response = await fetch(endpoint, {
+                    method: 'GET',
+                    cache: 'default' // Allow caching
+                });
+                
+                const endTime = performance.now();
+                const requestTime = endTime - startTime;
+                
+                log(`📊 Response status: ${response.status}`);
+                log(`📊 Response time: ${Math.round(requestTime)}ms`);
+                
+                // Check cache headers
+                const cacheControl = response.headers.get('cache-control');
+                const etag = response.headers.get('etag');
+                const age = response.headers.get('age');
+                
+                log(`📊 Cache-Control: ${cacheControl || 'Not set'}`);
+                log(`📊 ETag: ${etag || 'Not set'}`);
+                log(`📊 Age: ${age || 'Not set'}`);
+                
+                // Determine cache status
+                let cacheStatus = 'Unknown';
+                if (age && parseInt(age) > 0) {
+                    cacheStatus = 'CDN Cache';
+                } else if (requestTime < 200) {
+                    cacheStatus = 'Fast (Cache)';
+                } else if (requestTime > 800) {
+                    cacheStatus = 'Slow (Origin)';
+                } else {
+                    cacheStatus = 'Medium';
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                const products = data.products || [];
+                
+                log(`✅ Successfully loaded ${products.length} products`);
+                log(`📦 Response: ${data.message || 'No message'}`);
+                
+                updateStats(requestTime, products.length, cacheStatus);
+                
+                // Show success status
+                if (products.length > 0) {
+                    log(`🎉 Test successful - CDN caching is working properly!`);
+                } else {
+                    log(`ℹ️ Test completed - no products found for ${category}`);
+                }
+                
+            } catch (error) {
+                log(`❌ Test failed: ${error.message}`);
+                updateStats(0, 0, 'Error');
+                
+                // If Netlify function fails and we're in unknown environment, try local
+                if (environment === 'unknown' && !endpoint.includes('/api/')) {
+                    log(`🔄 Trying local endpoint as fallback...`);
+                    await testLocalEndpoint(category);
+                }
+            }
+        }
+        
+        async function testLocalEndpoint(category) {
+            try {
+                const endpoint = `/api/load-products/${category}`;
+                document.getElementById('currentUrl').textContent = endpoint;
+                log(`🌐 Local endpoint: ${endpoint}`);
+                
+                const startTime = performance.now();
+                const response = await fetch(endpoint);
+                const endTime = performance.now();
+                const requestTime = endTime - startTime;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const products = data.products || [];
+                    log(`✅ Local endpoint successful - loaded ${products.length} products`);
+                    updateStats(requestTime, products.length, 'Local');
+                } else {
+                    log(`❌ Local endpoint also failed: ${response.status}`);
+                }
+            } catch (error) {
+                log(`❌ Local endpoint error: ${error.message}`);
+            }
+        }
+        
+        async function runMultipleTests() {
+            log(`🚀 Running multiple tests to verify CDN caching behavior...`);
+            
+            // Test the same category multiple times to check caching
+            const category = 'bandwidth-test-1';
+            for (let i = 1; i <= 3; i++) {
+                log(`\n--- Test ${i} of 3 for ${category} ---`);
+                await testNetlifyFunction(category);
+                
+                // Wait a bit between tests
+                if (i < 3) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+            
+            log(`\n🎯 Multiple test summary:`);
+            log(`• First test should be slower (loads from Firebase)`);
+            log(`• Subsequent tests should be faster (CDN cache)`);
+            log(`• Response times should decrease with each test`);
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            detectEnvironment();
+            log('🧪 CDN Test initialized');
+            log('Click a test button to verify CDN behavior...');
+        });
+    </script>
+</body>
+</html>

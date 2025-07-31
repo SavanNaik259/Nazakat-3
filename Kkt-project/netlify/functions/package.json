@@ -1,0 +1,11 @@
+{
+  "name": "auric-netlify-functions",
+  "version": "1.0.0",
+  "description": "Netlify Functions for Auric Jewelry E-commerce",
+  "main": "index.js",
+  "dependencies": {
+    "razorpay": "^2.9.2",
+    "nodemailer": "^6.9.7",
+    "firebase-admin": "^11.11.0"
+  }
+}

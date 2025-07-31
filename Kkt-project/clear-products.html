@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Products - Firebase Storage</title>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-storage-compat.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .btn {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #b71c1c;
+        }
+        .btn.success {
+            background: #4caf50;
+        }
+        .btn.success:hover {
+            background: #45a049;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+        .status.success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+        .status.info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #bbdefb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗑️ Clear Sample Products</h1>
+        <p>This tool clears the sample products from Firebase Storage, so you can start fresh with your own products from the admin panel.</p>
+        
+        <div class="status info">
+            <strong>Action:</strong> This will replace the current bridal-products.json file with an empty array, removing all 6 sample products.
+        </div>
+
+        <button id="clearBtn" class="btn">Clear Sample Products</button>
+        <button id="addTestBtn" class="btn success" style="display: none;">Add Test Product</button>
+
+        <div id="status" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCrLCButDevLeILcBjrUCd9e7amXVjW-uI",
+            authDomain: "auric-a0c92.firebaseapp.com",
+            projectId: "auric-a0c92",
+            storageBucket: "auric-a0c92.firebasestorage.app",
+            messagingSenderId: "878979958342",
+            appId: "1:878979958342:web:e6092f7522488d21eaec47"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const storage = firebase.storage();
+
+        const clearBtn = document.getElementById('clearBtn');
+        const addTestBtn = document.getElementById('addTestBtn');
+        const statusDiv = document.getElementById('status');
+
+        function showStatus(message, type = 'info') {
+            statusDiv.style.display = 'block';
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = message;
+        }
+
+        // Clear products function
+        clearBtn.addEventListener('click', async function() {
+            try {
+                clearBtn.disabled = true;
+                clearBtn.textContent = 'Clearing...';
+                
+                showStatus('Clearing sample products from Firebase Storage...', 'info');
+
+                // Create empty products array
+                const emptyProducts = [];
+                const jsonData = JSON.stringify(emptyProducts, null, 2);
+                const blob = new Blob([jsonData], { type: 'application/json' });
+
+                // Upload empty array to Firebase Storage
+                const storageRef = storage.ref('productData/bridal-products.json');
+                
+                await storageRef.put(blob, {
+                    contentType: 'application/json',
+                    cacheControl: 'public, max-age=2592000' // 30 days cache
+                });
+
+                showStatus('✅ Sample products cleared successfully! The bridal products list is now empty.', 'success');
+                clearBtn.style.display = 'none';
+                addTestBtn.style.display = 'inline-block';
+
+            } catch (error) {
+                console.error('Error clearing products:', error);
+                showStatus(`❌ Error clearing products: ${error.message}`, 'error');
+                clearBtn.disabled = false;
+                clearBtn.textContent = 'Clear Sample Products';
+            }
+        });
+
+        // Add a test product function
+        addTestBtn.addEventListener('click', async function() {
+            try {
+                addTestBtn.disabled = true;
+                addTestBtn.textContent = 'Adding Test Product...';
+                
+                showStatus('Adding a test product to verify the system works...', 'info');
+
+                // Create a test product
+                const testProduct = {
+                    id: "TEST-" + Date.now(),
+                    name: "Test Product - Added via Clear Tool",
+                    price: 50000,
+                    image: "/.netlify/functions/image-proxy?path=productImages/test-image.jpg",
+                    description: "This is a test product to verify the admin panel and product loading system works correctly.",
+                    stock: 1,
+                    category: "bridal",
+                    createdAt: new Date().toISOString()
+                };
+
+                const testProducts = [testProduct];
+                const jsonData = JSON.stringify(testProducts, null, 2);
+                const blob = new Blob([jsonData], { type: 'application/json' });
+
+                // Upload test product to Firebase Storage
+                const storageRef = storage.ref('productData/bridal-products.json');
+                
+                await storageRef.put(blob, {
+                    contentType: 'application/json',
+                    cacheControl: 'public, max-age=2592000'
+                });
+
+                showStatus('✅ Test product added successfully! You can now use the admin panel to add real products.', 'success');
+                addTestBtn.disabled = false;
+                addTestBtn.textContent = 'Add Another Test Product';
+
+            } catch (error) {
+                console.error('Error adding test product:', error);
+                showStatus(`❌ Error adding test product: ${error.message}`, 'error');
+                addTestBtn.disabled = false;
+                addTestBtn.textContent = 'Add Test Product';
+            }
+        });
+    </script>
+</body>
+</html>

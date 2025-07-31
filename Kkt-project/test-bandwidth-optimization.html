@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Test Bandwidth Optimization</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+        
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        
+        .test-section h2 {
+            color: #495057;
+            margin-top: 0;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border-color: #28a745;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #dc3545;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-color: #17a2b8;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border-color: #ffc107;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        
+        .test-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .result-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .result-card h3 {
+            margin: 0 0 15px 0;
+            color: #495057;
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        
+        .metric:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-value {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .image-test {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .image-test img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 10px;
+        }
+        
+        .instructions {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #0066cc;
+        }
+        
+        .instructions h3 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+        
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+        
+        .code {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Test Bandwidth Optimization</h1>
+        
+        <div class="instructions">
+            <h3>🎯 How to Test Bandwidth Optimization</h3>
+            <ol>
+                <li><strong>First User Test:</strong> Click "Load Products" - this will consume Firebase Storage bandwidth</li>
+                <li><strong>Second User Test:</strong> Click "Load Products" again - this should use CDN cache (no bandwidth)</li>
+                <li><strong>Monitor Firebase:</strong> Check Firebase Console → Storage → Usage to see bandwidth consumption</li>
+                <li><strong>Expected Result:</strong> Only first load per region should consume bandwidth</li>
+            </ol>
+        </div>
+        
+        <div class="test-section">
+            <h2>1. Product Upload Test</h2>
+            <p>Upload products to test the admin panel with proxy URLs:</p>
+            <div style="text-align: center;">
+                <a href="admin-panel.html" class="btn">📝 Admin Panel</a>
+                <a href="sync-product-data.html" class="btn btn-success">📤 Sync to Firebase</a>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>2. Product Loading Test</h2>
+            <p>Test loading products through the image proxy system:</p>
+            <div style="text-align: center;">
+                <button id="loadProductsBtn" class="btn" onclick="loadProducts()">📦 Load Products</button>
+                <button id="clearCacheBtn" class="btn btn-warning" onclick="clearCache()">🗑️ Clear Cache</button>
+            </div>
+            
+            <div class="test-results" id="testResults"></div>
+            <div id="productImages" class="image-test"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>3. Bandwidth Monitoring</h2>
+            <p>Monitor Firebase Storage bandwidth usage:</p>
+            <div class="info">
+                <strong>Firebase Console Steps:</strong>
+                <ol>
+                    <li>Go to <a href="https://console.firebase.google.com/project/auric-a0c92/storage" target="_blank">Firebase Console</a></li>
+                    <li>Click "Storage" → "Usage"</li>
+                    <li>Monitor "Network egress" metrics</li>
+                    <li>First load should show bandwidth usage</li>
+                    <li>Subsequent loads should show minimal/no additional bandwidth</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>4. Image Proxy Test</h2>
+            <p>Test individual image proxy URLs:</p>
+            <div style="text-align: center;">
+                <button id="testImageBtn" class="btn" onclick="testImageProxy()">🖼️ Test Image Proxy</button>
+            </div>
+            <div id="imageProxyResults"></div>
+        </div>
+        
+        <div id="messages"></div>
+    </div>
+
+    <script>
+        let loadCount = 0;
+        let products = [];
+        
+        // Load products through server endpoint
+        async function loadProducts() {
+            try {
+                const loadBtn = document.getElementById('loadProductsBtn');
+                loadBtn.disabled = true;
+                loadBtn.textContent = 'Loading...';
+                
+                loadCount++;
+                const startTime = performance.now();
+                
+                showMessage(`🚀 Load attempt #${loadCount} started...`, 'info');
+                
+                // Detect environment and use appropriate endpoint
+                const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const endpoint = isLocalhost 
+                    ? '/api/load-products/bridal'
+                    : '/.netlify/functions/load-products?category=bridal';
+                
+                showMessage(`Using endpoint: ${endpoint}`, 'info');
+                
+                const response = await fetch(endpoint, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const endTime = performance.now();
+                const loadTime = Math.round(endTime - startTime);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    products = data.products || [];
+                    
+                    const message = loadCount === 1 
+                        ? `✅ First load: ${products.length} products (${loadTime}ms) - Bandwidth consumed`
+                        : `✅ Load #${loadCount}: ${products.length} products (${loadTime}ms) - Should be CDN cached`;
+                    
+                    showMessage(message, loadCount === 1 ? 'warning' : 'success');
+                    displayResults(loadTime, products.length, response.headers);
+                    displayProductImages(products);
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+            } catch (error) {
+                showMessage(`❌ Error loading products: ${error.message}`, 'error');
+                console.error('Load error:', error);
+            } finally {
+                document.getElementById('loadProductsBtn').disabled = false;
+                document.getElementById('loadProductsBtn').textContent = '📦 Load Products';
+            }
+        }
+        
+        // Display test results
+        function displayResults(loadTime, productCount, headers) {
+            const resultsDiv = document.getElementById('testResults');
+            
+            // Extract cache headers
+            const cacheControl = headers.get('cache-control') || 'Not set';
+            const age = headers.get('age') || 'Not set';
+            const etag = headers.get('etag') || 'Not set';
+            
+            const resultCard = document.createElement('div');
+            resultCard.className = 'result-card';
+            resultCard.innerHTML = `
+                <h3>Load #${loadCount} Results</h3>
+                <div class="metric">
+                    <span>Load Time:</span>
+                    <span class="metric-value">${loadTime}ms</span>
+                </div>
+                <div class="metric">
+                    <span>Products:</span>
+                    <span class="metric-value">${productCount}</span>
+                </div>
+                <div class="metric">
+                    <span>Cache-Control:</span>
+                    <span class="metric-value">${cacheControl}</span>
+                </div>
+                <div class="metric">
+                    <span>Age:</span>
+                    <span class="metric-value">${age}</span>
+                </div>
+                <div class="metric">
+                    <span>ETag:</span>
+                    <span class="metric-value">${etag.substring(0, 20)}...</span>
+                </div>
+                <div class="metric">
+                    <span>Bandwidth Impact:</span>
+                    <span class="metric-value">${loadCount === 1 ? 'HIGH' : 'LOW'}</span>
+                </div>
+            `;
+            
+            resultsDiv.appendChild(resultCard);
+        }
+        
+        // Display product images
+        function displayProductImages(products) {
+            const imagesDiv = document.getElementById('productImages');
+            imagesDiv.innerHTML = '<h3>Product Images (via Image Proxy)</h3>';
+            
+            products.slice(0, 3).forEach(product => {
+                const img = document.createElement('img');
+                img.src = product.image;
+                img.alt = product.name;
+                img.title = `${product.name} - ${product.image}`;
+                img.onerror = () => {
+                    img.style.border = '2px solid #dc3545';
+                    img.title = 'Image load failed';
+                };
+                img.onload = () => {
+                    img.style.border = '2px solid #28a745';
+                };
+                imagesDiv.appendChild(img);
+            });
+        }
+        
+        // Test image proxy directly
+        async function testImageProxy() {
+            const testBtn = document.getElementById('testImageBtn');
+            testBtn.disabled = true;
+            testBtn.textContent = 'Testing...';
+            
+            const resultsDiv = document.getElementById('imageProxyResults');
+            resultsDiv.innerHTML = '<h3>Image Proxy Test Results</h3>';
+            
+            // Test images
+            const testImages = [
+                'productImages/6Y4A6490.jpg',
+                'productImages/6Y4A6534.jpg',
+                'productImages/490A9712.jpg'
+            ];
+            
+            for (const imagePath of testImages) {
+                try {
+                    const startTime = performance.now();
+                    const proxyUrl = `/.netlify/functions/image-proxy?path=${encodeURIComponent(imagePath)}`;
+                    
+                    const response = await fetch(proxyUrl, { method: 'HEAD' });
+                    const endTime = performance.now();
+                    const loadTime = Math.round(endTime - startTime);
+                    
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = response.ok ? 'success' : 'error';
+                    resultDiv.innerHTML = `
+                        <strong>${imagePath}</strong><br>
+                        Status: ${response.status} ${response.statusText}<br>
+                        Load Time: ${loadTime}ms<br>
+                        Content-Type: ${response.headers.get('content-type') || 'Unknown'}<br>
+                        Cache-Control: ${response.headers.get('cache-control') || 'Not set'}
+                    `;
+                    resultsDiv.appendChild(resultDiv);
+                    
+                } catch (error) {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'error';
+                    resultDiv.innerHTML = `<strong>${imagePath}</strong><br>Error: ${error.message}`;
+                    resultsDiv.appendChild(resultDiv);
+                }
+            }
+            
+            testBtn.disabled = false;
+            testBtn.textContent = '🖼️ Test Image Proxy';
+        }
+        
+        // Clear cache
+        function clearCache() {
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => {
+                        caches.delete(name);
+                    });
+                });
+            }
+            
+            // Clear localStorage
+            localStorage.removeItem('bridalProducts');
+            localStorage.removeItem('bridalProductsTime');
+            localStorage.removeItem('bridalProductsETag');
+            
+            // Reset load count
+            loadCount = 0;
+            document.getElementById('testResults').innerHTML = '';
+            document.getElementById('productImages').innerHTML = '';
+            
+            showMessage('✅ Cache cleared successfully', 'success');
+        }
+        
+        // Show message
+        function showMessage(message, type) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `status ${type}`;
+            messageDiv.innerHTML = message;
+            messagesDiv.appendChild(messageDiv);
+            
+            // Auto-scroll to bottom
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            // Remove old messages to prevent clutter
+            if (messagesDiv.children.length > 10) {
+                messagesDiv.removeChild(messagesDiv.firstChild);
+            }
+        }
+        
+        // Show initial instructions
+        showMessage('🚀 Ready to test bandwidth optimization. Click "Load Products" to start.', 'info');
+    </script>
+</body>
+</html>

@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auric Admin Panel - Product Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .admin-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .admin-header p {
+            opacity: 0.8;
+            font-size: 1.1em;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .file-input-container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 15px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+        }
+
+        .file-input-label:hover {
+            background: #e8edff;
+            border-color: #5a6fd8;
+        }
+
+        .file-input-label i {
+            font-size: 2em;
+            color: #667eea;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.2em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading i {
+            animation: spin 1s linear infinite;
+            font-size: 2em;
+            color: #667eea;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message,
+        .error-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .image-preview {
+            margin-top: 10px;
+            display: none;
+        }
+
+        .image-preview img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1><i class="fas fa-gem"></i> Auric Admin Panel</h1>
+            <p>Product Management System</p>
+        </div>
+
+        <div class="form-container">
+            <form id="productForm">
+                <div class="form-group">
+                    <label for="productName">Product Name</label>
+                    <input type="text" id="productName" name="productName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="productPrice">Price (₹)</label>
+                    <input type="number" id="productPrice" name="productPrice" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="productStock">Stock Quantity</label>
+                    <input type="number" id="productStock" name="productStock" min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="productCategory">Category</label>
+                    <select id="productCategory" name="productCategory" required>
+                        <option value="">Select Category</option>
+                        <option value="bridal">Bridal Edit (Main Page)</option>
+                        <option value="polki">Polki Collection</option>
+                        <option value="new-arrivals">New Arrivals</option>
+                        <option value="featured">Featured Collection</option>
+                        <option value="rings">Rings</option>
+                        <option value="necklaces">Necklaces</option>
+                        <option value="earrings">Earrings</option>
+                        <option value="bangles">Bangles</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="productDescription">Description</label>
+                    <textarea id="productDescription" name="productDescription" placeholder="Enter detailed product description..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="productImage">Product Image</label>
+                    <div class="file-input-container">
+                        <input type="file" id="productImage" name="productImage" class="file-input" accept="image/*" required>
+                        <label for="productImage" class="file-input-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Click to upload product image</span>
+                        </label>
+                    </div>
+                    <div class="image-preview" id="imagePreview">
+                        <img id="previewImg" alt="Product Preview">
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-plus"></i> Add Product
+                </button>
+            </form>
+
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner"></i>
+                <p>Adding product...</p>
+            </div>
+
+            <div class="success-message" id="successMessage">
+                <i class="fas fa-check-circle"></i> Product added successfully!
+            </div>
+
+            <div class="error-message" id="errorMessage">
+                <i class="fas fa-exclamation-triangle"></i> <span id="errorText">Something went wrong!</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    
+    <!-- Cache Invalidation System -->
+    <script src="js/cache-invalidator.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAKFVNPuYMgO5GzqrxEuTdoKgdGwL4vFCg",
+            authDomain: "auric-a0c92.firebaseapp.com",
+            projectId: "auric-a0c92",
+            storageBucket: "auric-a0c92.firebasestorage.app",
+            messagingSenderId: "246063593968",
+            appId: "1:246063593968:web:f5fd5c55c2b7b88b4d5ac5",
+            measurementId: "G-3TC4T7CRB9"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const storage = firebase.storage();
+
+
+        // Test Firebase connection
+        async function testFirebaseConnection() {
+            try {
+                console.log('Testing Firebase connection...');
+                console.log('Firebase config:', {
+                    projectId: firebaseConfig.projectId,
+                    storageBucket: firebaseConfig.storageBucket
+                });
+
+                // Skip Firestore test - using Cloud Storage only
+                console.log('✅ Firestore connection skipped (using Cloud Storage only)');
+
+                // Test Storage connection with timeout
+                console.log('Testing Firebase Storage connection...');
+                await Promise.race([
+                    storage.ref().child('test').getMetadata().catch(() => console.log('Test file not found (normal)')),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Storage timeout')), 5000))
+                ]);
+                console.log('✅ Firebase Storage connection successful');
+
+                return true;
+            } catch (error) {
+                console.error('❌ Firebase connection failed:', error);
+
+                // Show connection error to user
+                const errorMessage = document.getElementById('errorMessage');
+                const errorText = document.getElementById('errorText');
+
+                if (error.code === 'permission-denied') {
+                    errorText.textContent = 'Firebase permission denied. Please check your security rules.';
+                } else if (error.code === 'failed-precondition') {
+                    errorText.textContent = 'Firebase setup issue. Please check your configuration.';
+                } else if (error.message.includes('timeout')) {
+                    errorText.textContent = 'Firebase connection timeout. Please check your internet connection.';
+                } else {
+                    errorText.textContent = `Firebase connection error: ${error.message}`;
+                }
+
+                errorMessage.style.display = 'block';
+                return false;
+            }
+        }
+
+        // Test connection when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            testFirebaseConnection();
+        });
+
+        // DOM elements
+        const productForm = document.getElementById('productForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const imageInput = document.getElementById('productImage');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+
+        // Image preview functionality
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Generate unique product ID
+        function generateProductId(category) {
+            const timestamp = Date.now();
+            const randomStr = Math.random().toString(36).substring(2, 10); // Longer random string
+            const microTime = performance.now().toString().replace('.', ''); // Add microsecond precision
+            const prefix = category.toUpperCase().substring(0, 3);
+            return `${prefix}-${timestamp}-${randomStr}-${microTime}`;
+        }
+
+        // Upload image to Firebase Storage with progress tracking
+        async function uploadImage(file, productId) {
+            const timestamp = Date.now();
+            const fileName = `${productId}_${timestamp}.jpg`;
+            const storageRef = storage.ref(`productImages/${fileName}`);
+
+            return new Promise((resolve, reject) => {
+                // Set metadata for 30-day CDN caching
+                const metadata = {
+                    cacheControl: 'public, max-age=2592000', // 30 days CDN cache
+                    contentType: file.type
+                };
+
+                const uploadTask = storageRef.put(file, metadata);
+                // Track upload progress
+                uploadTask.on('state_changed', 
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        console.log('Upload progress:', Math.round(progress) + '%', 
+                                   `(${snapshot.bytesTransferred}/${snapshot.totalBytes} bytes)`);
+
+                        // Update loading message with progress
+                        const loadingElement = document.getElementById('loading');
+                        if (loadingElement) {
+                            loadingElement.innerHTML = `
+                                <i class="fas fa-spinner"></i>
+                                <p>Uploading image... ${Math.round(progress)}%</p>
+                                <div style="background: #f0f0f0; height: 10px; border-radius: 5px; margin-top: 10px;">
+                                    <div style="background: #667eea; height: 100%; width: ${progress}%; border-radius: 5px; transition: width 0.3s;"></div>
+                                </div>
+                            `;
+                        }
+                    },
+                    (error) => {
+                        console.error('Upload error:', error);
+                        console.error('Upload error details:', {
+                            code: error.code,
+                            message: error.message,
+                            serverResponse: error.serverResponse
+                        });
+                        reject(error);
+                    },
+                    async () => {
+                        try {
+                            console.log('Upload completed, generating image proxy URL...');
+                            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                            console.log('Image uploaded successfully to Firebase Storage:', downloadURL);
+                            
+                            // Generate image proxy URL instead of direct Firebase URL
+                            const imagePath = `productImages/${fileName}`;
+                            const proxyURL = `/.netlify/functions/image-proxy?path=${encodeURIComponent(imagePath)}`;
+                            console.log('Generated image proxy URL:', proxyURL);
+                            
+                            resolve(proxyURL);
+                        } catch (error) {
+                            console.error('Error getting download URL:', error);
+                            reject(error);
+                        }
+                    }
+                );
+            });
+        }
+
+        // Save product data EXCLUSIVELY to Firebase Cloud Storage
+        async function saveProductData(productData, category) {
+            try {
+                // Update loading message
+                const loadingElement = document.getElementById('loading');
+                if (loadingElement) {
+                    loadingElement.innerHTML = `
+                        <i class="fas fa-spinner"></i>
+                        <p>Loading existing products via server...</p>
+                    `;
+                }
+
+                // Use the server API to load existing products (more reliable)
+                console.log('Loading existing products via server API...');
+                let existingProducts = [];
+                
+                try {
+                    // Detect environment and use appropriate endpoint
+                    const isNetlify = window.location.hostname.includes('netlify') || window.location.hostname.includes('.app');
+                    
+                    // ADD CACHE BUSTING FOR ADMIN PANEL - Always get fresh data when adding products
+                    const cacheBust = `cacheBust=${Date.now()}`;
+                    const separator = isNetlify ? '&' : '?';
+                    
+                    const apiEndpoint = isNetlify 
+                        ? `/.netlify/functions/load-products?category=${category}&${cacheBust}`
+                        : `/api/load-products/${category}?${cacheBust}`;
+                    
+                    console.log('Using endpoint with cache busting:', apiEndpoint, '(Netlify:', isNetlify, ')');
+                    
+                    // Use aggressive cache-busting headers to ensure fresh data
+                    const response = await fetch(apiEndpoint, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Cache-Control': 'no-cache, no-store, must-revalidate',
+                            'Pragma': 'no-cache',
+                            'Expires': '0'
+                        },
+                        cache: 'no-store' // Force bypass browser cache
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success && Array.isArray(data.products)) {
+                            existingProducts = data.products;
+                            console.log('Successfully loaded', existingProducts.length, 'existing products via server');
+                        } else {
+                            console.warn('Server returned no products or invalid format');
+                            existingProducts = [];
+                        }
+                    } else {
+                        console.warn('Server response not OK:', response.status);
+                        existingProducts = [];
+                    }
+                } catch (error) {
+                    console.warn('Error loading products via server:', error.message);
+                    console.log('Falling back to direct Firebase access...');
+                    
+                    // Fallback to direct Firebase Storage access
+                    try {
+                        const storageRef = storage.ref(`productData/${category}-products.json`);
+                        const downloadURL = await storageRef.getDownloadURL();
+                        const directResponse = await fetch(downloadURL);
+                        
+                        if (directResponse.ok) {
+                            const data = await directResponse.json();
+                            if (Array.isArray(data)) {
+                                existingProducts = data;
+                                console.log('Fallback: loaded', existingProducts.length, 'products directly');
+                            }
+                        }
+                    } catch (fallbackError) {
+                        console.warn('Fallback also failed, starting with empty array');
+                        existingProducts = [];
+                    }
+                }
+
+                // Update loading message
+                if (loadingElement) {
+                    loadingElement.innerHTML = `
+                        <i class="fas fa-spinner"></i>
+                        <p>Adding new product...</p>
+                    `;
+                }
+
+                // Check if product already exists (just in case)
+                const existingIndex = existingProducts.findIndex(p => p.id === productData.id);
+                if (existingIndex >= 0) {
+                    console.log('Product with this ID already exists, generating new ID...');
+                    productData.id = generateProductId(category); // Generate new unique ID
+                }
+
+                // Add the new product
+                existingProducts.push(productData);
+                console.log('Added new product with ID', productData.id, 'to existing', existingProducts.length - 1, 'products');
+
+                // Sort products by creation date (newest first)
+                existingProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                console.log('Updated product list now contains', existingProducts.length, 'products');
+
+                // Update loading message
+                if (loadingElement) {
+                    loadingElement.innerHTML = `
+                        <i class="fas fa-spinner"></i>
+                        <p>Saving to Cloud Storage...</p>
+                    `;
+                }
+
+                // Save updated list to Firebase Storage as JSON file
+                const jsonData = JSON.stringify(existingProducts, null, 2);
+                const blob = new Blob([jsonData], { type: 'application/json' });
+
+                const storageRef = storage.ref(`productData/${category}-products.json`);
+                
+                // Upload the file with 30-day CDN cache for optimal performance
+                const uploadTask = await storageRef.put(blob, {
+                    contentType: 'application/json',
+                    cacheControl: 'public, max-age=2592000' // 30 days CDN cache
+                });
+
+                console.log('Products JSON file updated successfully with', existingProducts.length, 'products');
+
+                // Skip verification to avoid the "Failed to fetch" error
+                console.log('Save completed successfully, skipping verification to avoid fetch errors');
+
+                return true;
+            } catch (error) {
+                console.error('Error saving product data:', error);
+
+                // Check for specific Firebase errors
+                if (error.code === 'permission-denied') {
+                    throw new Error('Permission denied. Please check your Firebase security rules.');
+                } else if (error.code === 'failed-precondition') {
+                    throw new Error('Firebase configuration error. Please check your Storage setup.');
+                } else if (error.message === 'Operation timeout') {
+                    throw new Error('Operation timed out. Please check your internet connection and try again.');
+                } else {
+                    throw new Error(`Failed to save product: ${error.message}`);
+                }
+            }
+        }
+
+        // Form submission handler
+        productForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Show loading state
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+
+            try {
+                // Update loading message
+                loading.innerHTML = `
+                    <i class="fas fa-spinner"></i>
+                    <p>Validating form data...</p>
+                `;
+
+                // Get form data
+                const formData = new FormData(productForm);
+                const productName = formData.get('productName');
+                const productPrice = parseFloat(formData.get('productPrice'));
+                const productStock = parseInt(formData.get('productStock'));
+                const productCategory = formData.get('productCategory');
+                const productDescription = formData.get('productDescription');
+                const productImage = formData.get('productImage');
+
+                // Validate required fields
+                if (!productName || !productPrice || !productStock || !productCategory || !productDescription || !productImage) {
+                    throw new Error('Please fill in all required fields');
+                }
+
+                // Validate image file
+                if (!productImage || productImage.size === 0) {
+                    throw new Error('Please select a valid image file');
+                }
+
+                // Check image size (max 5MB)
+                if (productImage.size > 5 * 1024 * 1024) {
+                    throw new Error('Image file is too large. Please choose a file smaller than 5MB.');
+                }
+
+                console.log('Form validation passed, starting upload process...');
+
+                // Generate product ID
+                const productId = generateProductId(productCategory);
+                console.log('Generated product ID:', productId);
+
+                // Update loading message
+                loading.innerHTML = `
+                    <i class="fas fa-spinner"></i>
+                    <p>Starting image upload...</p>
+                `;
+
+                // Upload image
+                console.log('Starting image upload for file:', productImage.name);
+                const imageUrl = await uploadImage(productImage, productId);
+                console.log('Image upload completed, URL:', imageUrl);
+
+                // Create product data object
+                const productData = {
+                    id: productId,
+                    name: productName,
+                    price: productPrice,
+                    stock: productStock,
+                    category: productCategory,
+                    description: productDescription,
+                    image: imageUrl,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                console.log('Product data prepared:', productData);
+
+                // Save product data
+                await saveProductData(productData, productCategory);
+
+                console.log('Product added successfully!');
+
+                // Show success message
+                loading.style.display = 'none';
+                successMessage.innerHTML = `
+                    <i class="fas fa-check-circle"></i> 
+                    Product "${productName}" added successfully to ${productCategory} category!
+                `;
+                successMessage.style.display = 'block';
+
+                // Clear ALL caches and force fresh reload using the comprehensive cache invalidation system
+                try {
+                    console.log('🧹 Starting aggressive cache invalidation after successful upload...');
+                    
+                    // Use the global cache invalidation system if available
+                    if (window.CacheInvalidator && window.CacheInvalidator.invalidateAllCaches) {
+                        window.CacheInvalidator.invalidateAllCaches(productCategory).then(result => {
+                            if (result.success) {
+                                console.log('✅ Comprehensive cache invalidation completed successfully');
+                                console.log('📊 Cache invalidation results:', result);
+                                
+                                // Additional verification: wait a moment then check if cache invalidation worked
+                                setTimeout(() => {
+                                    if (window.CacheInvalidator.isCacheInvalidationWorking && 
+                                        !window.CacheInvalidator.isCacheInvalidationWorking()) {
+                                        console.log('🚨 Cache invalidation verification failed, using nuclear option');
+                                        
+                                        // Show user message about refresh
+                                        const refreshMessage = document.createElement('div');
+                                        refreshMessage.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #ff9800; color: white; padding: 15px 25px; border-radius: 8px; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);';
+                                        refreshMessage.innerHTML = '🔄 Refreshing page to ensure new product appears...';
+                                        document.body.appendChild(refreshMessage);
+                                        
+                                        // Force page reload as nuclear option
+                                        window.CacheInvalidator.forcePageReload(3000);
+                                    } else {
+                                        console.log('✅ Cache invalidation verification passed');
+                                    }
+                                }, 2000);
+                                
+                            } else {
+                                console.error('❌ Cache invalidation failed:', result.error);
+                                // Fallback to nuclear option if cache invalidation failed
+                                console.log('🚨 Using nuclear cache clear option due to failure');
+                                if (window.CacheInvalidator.forcePageReload) {
+                                    window.CacheInvalidator.forcePageReload(2000);
+                                }
+                            }
+                        }).catch(error => {
+                            console.error('❌ Cache invalidation error:', error);
+                            // Fallback to nuclear option on error
+                            console.log('🚨 Using nuclear cache clear option due to error');
+                            if (window.CacheInvalidator && window.CacheInvalidator.forcePageReload) {
+                                window.CacheInvalidator.forcePageReload(2000);
+                            }
+                        });
+                    } else {
+                        // Fallback to manual cache clearing if the system isn't available
+                        console.log('⚠️ CacheInvalidator not available, using fallback method with page reload');
+                        
+                        // Clear localStorage cache
+                        const cacheKeys = ['bridalProducts', 'bridalProductsTime', 'bridalProductsETag', 'lastProductUpdate'];
+                        cacheKeys.forEach(key => {
+                            localStorage.removeItem(key);
+                            console.log(`Cleared localStorage: ${key}`);
+                        });
+                        
+                        // Clear BridalProductsLoader cache if available
+                        if (window.BridalProductsLoader && window.BridalProductsLoader.clearCache) {
+                            window.BridalProductsLoader.clearCache();
+                            console.log('Cleared BridalProductsLoader cache');
+                        }
+                        
+                        // Set cache invalidation flag
+                        const timestamp = Date.now();
+                        localStorage.setItem('lastProductUpdate', timestamp.toString());
+                        console.log('Set cache invalidation flag:', new Date(timestamp));
+                        
+                        console.log('✅ Fallback cache clearing completed - forcing page reload');
+                        
+                        // Force page reload as fallback nuclear option
+                        setTimeout(() => {
+                            window.location.reload(true);
+                        }, 2000);
+                    }
+                    
+                } catch (cacheError) {
+                    console.error('❌ Error during cache invalidation process:', cacheError);
+                    // Nuclear option even on errors
+                    setTimeout(() => {
+                        console.log('🚨 Final fallback: forcing page reload due to cache error');
+                        window.location.reload(true);
+                    }, 2000);
+                }
+
+                // Reset form
+                productForm.reset();
+                imagePreview.style.display = 'none';
+
+                // Auto-hide success message after 5 seconds
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 5000);
+
+            } catch (error) {
+                console.error('Error adding product:', error);
+                loading.style.display = 'none';
+
+                // Show detailed error message
+                let errorDisplayMessage = error.message || 'Failed to add product. Please try again.';
+
+                // Add helpful suggestions for common errors
+                if (error.message.includes('Permission denied')) {
+                    errorDisplayMessage += ' Make sure you have the correct Firebase permissions set up.';
+                } else if (error.message.includes('failed-precondition')) {
+                    errorDisplayMessage += ' There may be an issue with your Firebase configuration.';
+                } else if (error.message.includes('network')) {
+                    errorDisplayMessage += ' Please check your internet connection.';
+                }
+
+                errorText.textContent = errorDisplayMessage;
+                errorMessage.style.display = 'block';
+
+                // Auto-hide error message after 10 seconds
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 10000);
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

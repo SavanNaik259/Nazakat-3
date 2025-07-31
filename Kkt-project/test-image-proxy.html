@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Proxy Test - Auric Jewelry</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-image {
+            max-width: 200px;
+            max-height: 200px;
+            border: 1px solid #ccc;
+            margin: 10px;
+            display: inline-block;
+        }
+        .error {
+            color: red;
+            background: #ffe6e6;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            color: green;
+            background: #e6ffe6;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .cache-info {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #005a8b;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007cba;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Image Proxy CDN Test</h1>
+    <p>This page tests the Netlify Function image proxy with CDN caching to validate bandwidth optimization.</p>
+
+    <div class="test-section">
+        <h2>Test Configuration</h2>
+        <p><strong>Function URL:</strong> <code>/.netlify/functions/image-proxy</code></p>
+        <p><strong>Test Images:</strong> Sample product images from Firebase Storage</p>
+        <p><strong>Cache Strategy:</strong> Long-term CDN caching with browser revalidation</p>
+    </div>
+
+    <div class="test-section">
+        <h2>Cache Performance Stats</h2>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="total-requests">0</div>
+                <div>Total Requests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="cache-hits">0</div>
+                <div>Cache Hits</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="cache-misses">0</div>
+                <div>Cache Misses</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avg-response-time">0ms</div>
+                <div>Avg Response Time</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Controls</h2>
+        <button onclick="testSingleImage()">Test Single Image</button>
+        <button onclick="testMultipleImages()">Test Multiple Images</button>
+        <button onclick="testCacheHeaders()">Test Cache Headers</button>
+        <button onclick="clearResults()">Clear Results</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Images</h2>
+        <div id="images"></div>
+    </div>
+
+    <script>
+        // Test statistics
+        let stats = {
+            totalRequests: 0,
+            cacheHits: 0,
+            cacheMisses: 0,
+            responseTimes: []
+        };
+
+        // Test image paths (these should exist in your Firebase Storage)
+        const testImages = [
+            'productImages/sample-ring.jpg',
+            'productImages/sample-necklace.jpg',
+            'productImages/sample-earrings.jpg',
+            // Add more test images as needed
+        ];
+
+        function updateStats() {
+            document.getElementById('total-requests').textContent = stats.totalRequests;
+            document.getElementById('cache-hits').textContent = stats.cacheHits;
+            document.getElementById('cache-misses').textContent = stats.cacheMisses;
+            
+            const avgTime = stats.responseTimes.length > 0 
+                ? Math.round(stats.responseTimes.reduce((a, b) => a + b, 0) / stats.responseTimes.length)
+                : 0;
+            document.getElementById('avg-response-time').textContent = avgTime + 'ms';
+        }
+
+        function logResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+
+        async function testImageProxy(imagePath) {
+            const startTime = performance.now();
+            const proxyUrl = `/.netlify/functions/image-proxy?path=${encodeURIComponent(imagePath)}`;
+            
+            try {
+                const response = await fetch(proxyUrl);
+                const endTime = performance.now();
+                const responseTime = Math.round(endTime - startTime);
+                
+                stats.totalRequests++;
+                stats.responseTimes.push(responseTime);
+                
+                // Check cache status
+                const cacheStatus = response.headers.get('cache-status') || 'unknown';
+                const age = response.headers.get('age') || '0';
+                const etag = response.headers.get('etag') || 'none';
+                
+                if (cacheStatus.includes('hit') || parseInt(age) > 0) {
+                    stats.cacheHits++;
+                } else {
+                    stats.cacheMisses++;
+                }
+                
+                if (response.ok) {
+                    logResult(`✅ Image loaded: ${imagePath} (${responseTime}ms, Age: ${age}s, Cache: ${cacheStatus})`, 'success');
+                    
+                    // Show cache headers
+                    const cacheInfo = `
+                        <div class="cache-info">
+                            <strong>Cache Headers:</strong><br>
+                            Cache-Control: ${response.headers.get('cache-control') || 'none'}<br>
+                            Netlify-CDN-Cache-Control: ${response.headers.get('netlify-cdn-cache-control') || 'none'}<br>
+                            ETag: ${etag}<br>
+                            Age: ${age}s<br>
+                            Cache-Status: ${cacheStatus}
+                        </div>
+                    `;
+                    
+                    return {
+                        success: true,
+                        url: proxyUrl,
+                        responseTime,
+                        cacheInfo
+                    };
+                } else {
+                    logResult(`❌ Failed to load: ${imagePath} (${response.status} ${response.statusText})`, 'error');
+                    return { success: false, error: `${response.status} ${response.statusText}` };
+                }
+            } catch (error) {
+                logResult(`❌ Error loading: ${imagePath} (${error.message})`, 'error');
+                return { success: false, error: error.message };
+            } finally {
+                updateStats();
+            }
+        }
+
+        async function testSingleImage() {
+            logResult('🔍 Testing single image load...', 'info');
+            
+            // Use a known image path or default test
+            const testPath = 'productImages/sample-test.jpg';
+            const result = await testImageProxy(testPath);
+            
+            if (result.success) {
+                // Display the image
+                const img = document.createElement('img');
+                img.src = result.url;
+                img.className = 'test-image';
+                img.alt = 'Test image';
+                
+                const container = document.getElementById('images');
+                container.innerHTML = '';
+                container.appendChild(img);
+                
+                if (result.cacheInfo) {
+                    container.innerHTML += result.cacheInfo;
+                }
+            }
+        }
+
+        async function testMultipleImages() {
+            logResult('🔍 Testing multiple images for cache behavior...', 'info');
+            
+            const container = document.getElementById('images');
+            container.innerHTML = '';
+            
+            // Test with known Firebase Storage paths
+            const testPaths = [
+                'productImages/test1.jpg',
+                'productImages/test2.jpg',
+                'productImages/test3.jpg'
+            ];
+            
+            for (const path of testPaths) {
+                const result = await testImageProxy(path);
+                
+                if (result.success) {
+                    const img = document.createElement('img');
+                    img.src = result.url;
+                    img.className = 'test-image';
+                    img.alt = path;
+                    container.appendChild(img);
+                }
+                
+                // Small delay between requests
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            
+            // Test the same images again to check cache hits
+            logResult('🔄 Re-testing same images to verify cache hits...', 'info');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            for (const path of testPaths) {
+                await testImageProxy(path);
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        }
+
+        async function testCacheHeaders() {
+            logResult('🔍 Testing cache header behavior...', 'info');
+            
+            const testPath = 'productImages/cache-test.jpg';
+            
+            // First request
+            logResult('Making first request (should be cache miss)...', 'info');
+            await testImageProxy(testPath);
+            
+            // Second request immediately
+            logResult('Making second request (should be cache hit)...', 'info');
+            await testImageProxy(testPath);
+            
+            // Third request after delay
+            setTimeout(async () => {
+                logResult('Making third request after delay (should be cache hit)...', 'info');
+                await testImageProxy(testPath);
+            }, 2000);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('images').innerHTML = '';
+            stats = {
+                totalRequests: 0,
+                cacheHits: 0,
+                cacheMisses: 0,
+                responseTimes: []
+            };
+            updateStats();
+            logResult('🔄 Test results cleared', 'info');
+        }
+
+        // Initialize
+        logResult('🚀 Image proxy test page loaded. Click buttons above to run tests.', 'info');
+        updateStats();
+    </script>
+</body>
+</html>

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📤 Sync Product Data to Firebase Storage</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border-color: #28a745;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #dc3545;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-color: #17a2b8;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border-color: #ffc107;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .code {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: #667eea;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+        
+        .file-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        
+        .file-info h3 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        
+        .file-info p {
+            margin: 5px 0;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📤 Sync Product Data to Firebase Storage</h1>
+        
+        <div class="info">
+            <strong>Purpose:</strong> This tool uploads the updated product data (with image proxy URLs) from your local data/bridal-products.json file to Firebase Storage so the deployed site can use it.
+        </div>
+        
+        <div class="file-info">
+            <h3>📁 Local Product Data</h3>
+            <p><strong>File:</strong> data/bridal-products.json</p>
+            <p><strong>Status:</strong> <span id="fileStatus">Loading...</span></p>
+            <p><strong>Products:</strong> <span id="productCount">-</span></p>
+            <p><strong>Image URLs:</strong> <span id="imageUrlType">-</span></p>
+        </div>
+        
+        <div class="file-info">
+            <h3>☁️ Firebase Storage</h3>
+            <p><strong>Destination:</strong> productData/bridal-products.json</p>
+            <p><strong>Purpose:</strong> Used by deployed site to load products</p>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <button id="uploadBtn" class="btn" onclick="uploadToFirebase()">
+                📤 Upload to Firebase Storage
+            </button>
+        </div>
+        
+        <div id="messages"></div>
+        
+        <div class="warning">
+            <strong>⚠️ Important:</strong> 
+            <ul>
+                <li>This will replace the existing product data in Firebase Storage</li>
+                <li>Make sure the local data/bridal-products.json file has the correct proxy URLs</li>
+                <li>The deployed site will use this data after upload</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-storage-compat.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBVl0CgmqaGYt2MlwqkGlhMQXlOXSfmtWw",
+            authDomain: "auric-a0c92.firebaseapp.com",
+            projectId: "auric-a0c92",
+            storageBucket: "auric-a0c92.firebasestorage.app",
+            messagingSenderId: "462638601043",
+            appId: "1:462638601043:web:7b3b4e0f2e5c6d8e9f0a1b"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const storage = firebase.storage();
+        
+        let localProductData = null;
+        
+        // Load local product data
+        async function loadLocalData() {
+            try {
+                const response = await fetch('data/bridal-products.json');
+                if (!response.ok) {
+                    throw new Error('Failed to load local product data');
+                }
+                
+                localProductData = await response.json();
+                
+                // Update UI
+                document.getElementById('fileStatus').textContent = 'Found ✅';
+                document.getElementById('productCount').textContent = localProductData.length;
+                
+                // Check image URL types
+                const hasProxyUrls = localProductData.some(p => p.image && p.image.includes('/.netlify/functions/image-proxy'));
+                const hasDirectUrls = localProductData.some(p => p.image && p.image.includes('firebasestorage.googleapis.com'));
+                
+                if (hasProxyUrls && !hasDirectUrls) {
+                    document.getElementById('imageUrlType').innerHTML = '<span style="color: #28a745;">✅ Proxy URLs only</span>';
+                } else if (hasDirectUrls && !hasProxyUrls) {
+                    document.getElementById('imageUrlType').innerHTML = '<span style="color: #dc3545;">❌ Direct URLs only</span>';
+                } else if (hasProxyUrls && hasDirectUrls) {
+                    document.getElementById('imageUrlType').innerHTML = '<span style="color: #ffc107;">⚠️ Mixed URLs</span>';
+                } else {
+                    document.getElementById('imageUrlType').innerHTML = '<span style="color: #6c757d;">❓ No image URLs</span>';
+                }
+                
+                // Show sample product
+                if (localProductData.length > 0) {
+                    showMessage('Sample product loaded:', 'info');
+                    showMessage(`<div class="code">${JSON.stringify(localProductData[0], null, 2)}</div>`, 'info');
+                }
+                
+            } catch (error) {
+                console.error('Error loading local data:', error);
+                document.getElementById('fileStatus').textContent = 'Error ❌';
+                showMessage(`Error loading local data: ${error.message}`, 'error');
+            }
+        }
+        
+        // Upload to Firebase Storage
+        async function uploadToFirebase() {
+            if (!localProductData) {
+                showMessage('No local product data found. Please check the file.', 'error');
+                return;
+            }
+            
+            try {
+                const uploadBtn = document.getElementById('uploadBtn');
+                uploadBtn.disabled = true;
+                uploadBtn.textContent = 'Uploading...';
+                
+                showMessage('Starting upload to Firebase Storage...', 'info');
+                
+                // Convert data to JSON string
+                const jsonData = JSON.stringify(localProductData, null, 2);
+                const blob = new Blob([jsonData], { type: 'application/json' });
+                
+                // Upload to Firebase Storage
+                const storageRef = storage.ref('productData/bridal-products.json');
+                
+                // Set metadata for caching
+                const metadata = {
+                    contentType: 'application/json',
+                    cacheControl: 'public, max-age=300', // 5 minutes cache
+                    customMetadata: {
+                        uploadedAt: new Date().toISOString(),
+                        productCount: localProductData.length.toString(),
+                        hasProxyUrls: localProductData.some(p => p.image && p.image.includes('/.netlify/functions/image-proxy')).toString()
+                    }
+                };
+                
+                const uploadTask = storageRef.put(blob, metadata);
+                
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        showMessage(`Upload progress: ${Math.round(progress)}%`, 'info');
+                    },
+                    (error) => {
+                        console.error('Upload error:', error);
+                        showMessage(`Upload error: ${error.message}`, 'error');
+                        uploadBtn.disabled = false;
+                        uploadBtn.textContent = '📤 Upload to Firebase Storage';
+                    },
+                    async () => {
+                        try {
+                            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                            showMessage('✅ Upload successful!', 'success');
+                            showMessage(`Firebase Storage URL: ${downloadURL}`, 'info');
+                            showMessage(`Uploaded ${localProductData.length} products with proxy URLs`, 'success');
+                            
+                            // Test the uploaded data
+                            await testUploadedData(downloadURL);
+                            
+                        } catch (error) {
+                            showMessage(`Error getting download URL: ${error.message}`, 'error');
+                        } finally {
+                            uploadBtn.disabled = false;
+                            uploadBtn.textContent = '📤 Upload to Firebase Storage';
+                        }
+                    }
+                );
+                
+            } catch (error) {
+                console.error('Upload error:', error);
+                showMessage(`Upload error: ${error.message}`, 'error');
+                document.getElementById('uploadBtn').disabled = false;
+                document.getElementById('uploadBtn').textContent = '📤 Upload to Firebase Storage';
+            }
+        }
+        
+        // Test uploaded data
+        async function testUploadedData(downloadURL) {
+            try {
+                showMessage('Testing uploaded data...', 'info');
+                
+                const response = await fetch(downloadURL);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (Array.isArray(data) && data.length > 0) {
+                    showMessage(`✅ Test successful: ${data.length} products loaded from Firebase Storage`, 'success');
+                    
+                    // Check if proxy URLs are working
+                    const hasProxyUrls = data.some(p => p.image && p.image.includes('/.netlify/functions/image-proxy'));
+                    if (hasProxyUrls) {
+                        showMessage('✅ Proxy URLs detected in uploaded data', 'success');
+                    } else {
+                        showMessage('⚠️ No proxy URLs found in uploaded data', 'warning');
+                    }
+                } else {
+                    showMessage('⚠️ Test completed but no products found', 'warning');
+                }
+                
+            } catch (error) {
+                showMessage(`Test error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Show message
+        function showMessage(message, type) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `status ${type}`;
+            messageDiv.innerHTML = message;
+            messagesDiv.appendChild(messageDiv);
+            
+            // Auto-scroll to bottom
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        // Initialize
+        loadLocalData();
+    </script>
+</body>
+</html>
