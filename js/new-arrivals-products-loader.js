@@ -325,7 +325,7 @@ const NewArrivalsProductsLoader = (function() {
     }
 
     /**
-     * Generate HTML for a product item (matching you-may-also-like section design)
+     * Generate HTML for a product item
      */
     function generateProductHTML(product) {
         const formattedPrice = new Intl.NumberFormat('en-IN', {
@@ -335,16 +335,16 @@ const NewArrivalsProductsLoader = (function() {
         }).format(product.price);
 
         return `
-            <div class="product-item" data-product-id="${product.id}" style="background: none;">
+            <div class="arrival-item new-arrivals-card" data-product-id="${product.id}">
                 <a href="#" style="text-decoration: none; color: inherit;">
-                    <div class="product-image">
+                    <div class="arrival-image">
                         <img src="${product.image}" alt="${product.name}" loading="lazy">
                         <button class="add-to-wishlist" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}" data-product-image="${product.image}">
                             <i class="far fa-heart"></i>
                         </button>
                     </div>
-                    <div class="product-details" style="text-align: center;">
-                        <h3 class="product-name">${product.name}</h3>
+                    <div class="arrival-details">
+                        <h3 class="arrival-title">${product.name}</h3>
                         <div class="product-pricing">
                             <span class="current-price">${formattedPrice}</span>
                         </div>
@@ -396,7 +396,7 @@ const NewArrivalsProductsLoader = (function() {
         }
         
         // Get the parent product container
-        const productItem = button.closest('.product-item');
+        const productItem = button.closest('.arrival-item') || button.closest('.new-arrivals-card');
         if (!productItem) {
             console.error('Product container not found');
             return;
@@ -404,7 +404,7 @@ const NewArrivalsProductsLoader = (function() {
         
         // Extract product data from the product container elements
         const productId = productItem.dataset.productId || button.dataset.productId;
-        const productNameEl = productItem.querySelector('.product-name');
+        const productNameEl = productItem.querySelector('.arrival-title');
         const productName = productNameEl ? productNameEl.textContent.trim() : (button.dataset.productName || 'Unknown Product');
         
         // Get price from the price element in the product container
@@ -425,7 +425,7 @@ const NewArrivalsProductsLoader = (function() {
         }
         
         // Get image from the product container
-        const imageElement = productItem.querySelector('.product-image img');
+        const imageElement = productItem.querySelector('.arrival-image img');
         const productImage = imageElement ? imageElement.src : (button.dataset.productImage || '');
         
         const productData = {
