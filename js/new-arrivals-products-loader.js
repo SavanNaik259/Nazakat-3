@@ -1,6 +1,8 @@
+
 /**
  * New Arrivals Products Loader
  * Dynamically loads products EXCLUSIVELY from Firebase Cloud Storage
+ * Uses exact same approach as Kkt-project bridal section
  */
 
 const NewArrivalsProductsLoader = (function() {
@@ -83,9 +85,6 @@ const NewArrivalsProductsLoader = (function() {
                 console.log('🚨 Cache invalidated by admin panel update:', new Date(updateTime));
                 cacheInvalidated = true;
                 forceRefresh = true;
-                // Clear the invalidation flag immediately to prevent continuous cache busting
-                localStorage.removeItem('lastProductUpdate');
-                console.log('✅ Cleared cache invalidation flag to restore CDN caching');
             }
         }
 
@@ -124,8 +123,8 @@ const NewArrivalsProductsLoader = (function() {
             
             let response;
             
-            // Use Netlify function for proper CDN caching (works on both deployed and development)
-            if (true) { // Always use Netlify function for CDN optimization
+            // On deployed sites, use Netlify function instead of direct Firebase Storage CDN
+            if (window.location.hostname.includes('netlify') || window.location.hostname.includes('.app')) {
                 console.log('Deployed site detected - using Netlify function endpoint');
                 
                 // Use Netlify function endpoint for proper cache control
@@ -323,7 +322,7 @@ const NewArrivalsProductsLoader = (function() {
     }
 
     /**
-     * Generate HTML for a product item (using Product Categories Section styling)
+     * Generate HTML for a product item
      */
     function generateProductHTML(product) {
         const formattedPrice = new Intl.NumberFormat('en-IN', {
@@ -333,16 +332,16 @@ const NewArrivalsProductsLoader = (function() {
         }).format(product.price);
 
         return `
-            <div class="product-item" data-product-id="${product.id}" style="background: none;">
+            <div class="arrival-item new-arrivals-card" data-product-id="${product.id}">
                 <a href="#" style="text-decoration: none; color: inherit;">
-                    <div class="product-image">
+                    <div class="arrival-image">
                         <img src="${product.image}" alt="${product.name}" loading="lazy">
                         <button class="add-to-wishlist" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}" data-product-image="${product.image}">
                             <i class="far fa-heart"></i>
                         </button>
                     </div>
-                    <div class="product-details" style="text-align: center;">
-                        <h3 class="product-name">${product.name}</h3>
+                    <div class="arrival-details">
+                        <h3 class="arrival-title">${product.name}</h3>
                         <div class="product-pricing">
                             <span class="current-price">${formattedPrice}</span>
                         </div>
@@ -359,7 +358,7 @@ const NewArrivalsProductsLoader = (function() {
         console.log('Setting up wishlist event listeners for new arrivals products...');
         
         // Find all wishlist buttons in the new arrivals section
-        const newArrivalsSection = document.querySelector('.new-arrivals-products');
+        const newArrivalsSection = document.querySelector('.new-arrivals-edit, .new-arrivals');
         if (!newArrivalsSection) {
             console.warn('New arrivals section not found for wishlist setup');
             return;
@@ -394,7 +393,7 @@ const NewArrivalsProductsLoader = (function() {
         }
         
         // Get the parent product container
-        const productItem = button.closest('.product-item');
+        const productItem = button.closest('.arrival-item') || button.closest('.new-arrivals-card');
         if (!productItem) {
             console.error('Product container not found');
             return;
@@ -402,7 +401,7 @@ const NewArrivalsProductsLoader = (function() {
         
         // Extract product data from the product container elements
         const productId = productItem.dataset.productId || button.dataset.productId;
-        const productNameEl = productItem.querySelector('.product-name');
+        const productNameEl = productItem.querySelector('.arrival-title');
         const productName = productNameEl ? productNameEl.textContent.trim() : (button.dataset.productName || 'Unknown Product');
         
         // Get price from the price element in the product container
@@ -423,7 +422,7 @@ const NewArrivalsProductsLoader = (function() {
         }
         
         // Get image from the product container
-        const imageElement = productItem.querySelector('.product-image img');
+        const imageElement = productItem.querySelector('.arrival-image img');
         const productImage = imageElement ? imageElement.src : (button.dataset.productImage || '');
         
         const productData = {
@@ -468,7 +467,7 @@ const NewArrivalsProductsLoader = (function() {
      * Update the New Arrivals section with loaded products
      */
     async function updateNewArrivalsSection() {
-        const newArrivalsGrid = document.querySelector('.new-arrivals-products .product-scroll-container');
+        const newArrivalsGrid = document.querySelector('.new-arrivals .arrivals-grid, .new-arrivals-edit .arrivals-grid');
 
         if (!newArrivalsGrid) {
             console.warn('New arrivals grid element not found');
@@ -537,7 +536,7 @@ const NewArrivalsProductsLoader = (function() {
                 
                 newArrivalsGrid.innerHTML = `
                     <div class="no-products-message" style="grid-column: 1 / -1; text-align: center; padding: 40px 20px;">
-                        <i class="fas fa-gem" style="font-size: 48px; color: #5a3f2a; margin-bottom: 20px;"></i>
+                        <i class="fas fa-star" style="font-size: 48px; color: #5a3f2a; margin-bottom: 20px;"></i>
                         <h3 style="color: #5a3f2a; margin-bottom: 10px;">No Products Available</h3>
                         <p style="color: #666;">${messageText}</p>
                     </div>
@@ -553,15 +552,6 @@ const NewArrivalsProductsLoader = (function() {
             }
 
             console.log('New arrivals section updated with', products.length, 'products');
-            
-            // Trigger auto-scroll for the new arrivals section after products are loaded
-            setTimeout(() => {
-                if (typeof autoScrollNewArrivalsSection === 'function') {
-                    autoScrollNewArrivalsSection();
-                } else if (window.autoScrollNewArrivalsSection) {
-                    window.autoScrollNewArrivalsSection();
-                }
-            }, 200); // Small delay to ensure DOM is updated
         } catch (error) {
             console.error('Error updating new arrivals section:', error);
             console.error('Error details:', {
@@ -584,37 +574,52 @@ const NewArrivalsProductsLoader = (function() {
                     ${error.message}<br>
                     <small>Check console for details. Showing default collection.</small>
                 `;
-                newArrivalsGrid.appendChild(errorDiv);
+                newArrivalsGrid.insertBefore(errorDiv, newArrivalsGrid.firstChild);
             }
         }
     }
 
+    /**
+     * Clear cached products (useful after adding/editing products)
+     */
+    function clearCache() {
+        console.log('Clearing all new arrivals products cache...');
+        cachedProducts = null;
+        lastFetchTime = 0;
+        cachedETag = null;
+        try {
+            localStorage.removeItem('newArrivalsProducts');
+            localStorage.removeItem('newArrivalsProductsTime');
+            localStorage.removeItem('newArrivalsProductsETag');
+            console.log('localStorage cache cleared');
+        } catch (e) {
+            console.warn('Error clearing localStorage cache:', e);
+        }
+        console.log('All new arrivals products cache cleared');
+    }
+
     // Public API
     return {
-        init: init,
-        loadNewArrivalsProducts: loadNewArrivalsProducts,
-        updateNewArrivalsSection: updateNewArrivalsSection,
-        clearCache: clearCache,
-        setupWishlistEventListeners: setupWishlistEventListeners
+        init,
+        loadNewArrivalsProducts,
+        updateNewArrivalsSection,
+        clearCache
     };
 })();
 
-// Auto-initialize when the script loads
+// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing New Arrivals Products Loader...');
-    
-    // Initialize the loader
-    if (NewArrivalsProductsLoader.init()) {
-        // Update the section with products
-        NewArrivalsProductsLoader.updateNewArrivalsSection().then(() => {
-            console.log('Initial load completed for new arrivals products');
-        }).catch(error => {
-            console.error('Error during initial load:', error);
-        });
-    } else {
-        console.error('Failed to initialize New Arrivals Products Loader');
-    }
+    // Wait a bit for Firebase to initialize
+    setTimeout(() => {
+        if (NewArrivalsProductsLoader.init()) {
+            // Force refresh to bypass any cache issues
+            NewArrivalsProductsLoader.loadNewArrivalsProducts(true).then(products => {
+                console.log('Initial load completed with', products.length, 'products');
+                NewArrivalsProductsLoader.updateNewArrivalsSection();
+            }).catch(error => {
+                console.error('Initial load failed:', error);
+                NewArrivalsProductsLoader.updateNewArrivalsSection();
+            });
+        }
+    }, 1000);
 });
-
-// Make it globally available for external calls
-window.NewArrivalsProductsLoader = NewArrivalsProductsLoader;

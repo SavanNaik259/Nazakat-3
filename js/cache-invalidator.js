@@ -197,63 +197,39 @@ window.CacheInvalidator = (function() {
                     console.log('✅ Bridal section updated with fresh data');
                 }
 
-                // Double-check by doing another refresh after a short delay
-                setTimeout(async () => {
-                    try {
-                        console.log('🔄 Double-checking with secondary refresh...');
-                        await window.BridalProductsLoader.loadBridalProducts(true);
-                        window.BridalProductsLoader.updateBridalSection();
-                        console.log('✅ Secondary refresh completed');
-                    } catch (e) {
-                        console.warn('⚠️ Secondary refresh failed:', e);
-                    }
-                }, 1000);
-
             } catch (e) {
                 console.warn('❌ Failed to refresh BridalProductsLoader:', e);
             }
         } else {
-            console.warn('⚠️ BridalProductsLoader not available for fresh reload');
+            console.warn('⚠️ BridalProductsLoader not available for refresh');
         }
 
-        // Trigger PolkiProductsLoader refresh if available
-        if (window.PolkiProductsLoader && typeof window.PolkiProductsLoader.loadPolkiProducts === 'function') {
+        // Trigger NewArrivalsProductsLoader refresh if available
+        if (window.NewArrivalsProductsLoader && typeof window.NewArrivalsProductsLoader.loadNewArrivalsProducts === 'function') {
             try {
-                console.log('🔄 Force refreshing PolkiProductsLoader with cache bypass...');
+                console.log('🔄 Force refreshing NewArrivalsProductsLoader with cache bypass...');
 
                 // First clear the loader's internal cache
-                if (typeof window.PolkiProductsLoader.clearCache === 'function') {
-                    window.PolkiProductsLoader.clearCache();
-                    console.log('🧹 Cleared PolkiProductsLoader internal cache');
+                if (typeof window.NewArrivalsProductsLoader.clearCache === 'function') {
+                    window.NewArrivalsProductsLoader.clearCache();
+                    console.log('🧹 Cleared NewArrivalsProductsLoader internal cache');
                 }
 
                 // Force refresh with forceRefresh=true
-                await window.PolkiProductsLoader.loadPolkiProducts(true);
-                console.log('✅ PolkiProductsLoader force refreshed');
+                await window.NewArrivalsProductsLoader.loadNewArrivalsProducts(true);
+                console.log('✅ NewArrivalsProductsLoader force refreshed');
 
-                // Update polki section if available
-                if (typeof window.PolkiProductsLoader.updatePolkiSection === 'function') {
-                    window.PolkiProductsLoader.updatePolkiSection();
-                    console.log('✅ Polki section updated with fresh data');
+                // Update new arrivals section if available
+                if (typeof window.NewArrivalsProductsLoader.updateNewArrivalsSection === 'function') {
+                    window.NewArrivalsProductsLoader.updateNewArrivalsSection();
+                    console.log('✅ New arrivals section updated with fresh data');
                 }
 
-                // Double-check by doing another refresh after a short delay
-                setTimeout(async () => {
-                    try {
-                        console.log('🔄 Double-checking with secondary refresh...');
-                        await window.PolkiProductsLoader.loadPolkiProducts(true);
-                        window.PolkiProductsLoader.updatePolkiSection();
-                        console.log('✅ Secondary refresh completed');
-                    } catch (e) {
-                        console.warn('⚠️ Secondary refresh failed:', e);
-                    }
-                }, 1000);
-
             } catch (e) {
-                console.warn('❌ Failed to refresh PolkiProductsLoader:', e);
+                console.warn('❌ Failed to refresh NewArrivalsProductsLoader:', e);
             }
         } else {
-            console.warn('⚠️ PolkiProductsLoader not available for fresh reload');
+            console.warn('⚠️ NewArrivalsProductsLoader not available for refresh');
         }
     }
 
