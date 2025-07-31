@@ -467,10 +467,21 @@ const NewArrivalsProductsLoader = (function() {
     }
 
     /**
-     * Update the New Arrivals section with loaded products
+     * Update the New Arrivals section with loaded products using horizontal scroll layout
      */
     async function updateNewArrivalsSection() {
-        const newArrivalsGrid = document.querySelector('.new-arrivals .arrivals-grid, .new-arrivals-edit .arrivals-grid');
+        // Look for the new arrivals section with horizontal scroll container
+        const newArrivalsSection = document.querySelector('.new-arrivals-edit');
+        let newArrivalsGrid = null;
+        
+        if (newArrivalsSection) {
+            newArrivalsGrid = newArrivalsSection.querySelector('.arrivals-grid');
+        }
+        
+        // Fallback to original selector
+        if (!newArrivalsGrid) {
+            newArrivalsGrid = document.querySelector('.new-arrivals .arrivals-grid, .new-arrivals-edit .arrivals-grid');
+        }
 
         if (!newArrivalsGrid) {
             console.warn('New arrivals grid element not found');
@@ -478,13 +489,12 @@ const NewArrivalsProductsLoader = (function() {
         }
 
         try {
-            // Show loading state without clearing existing products
+            // Show loading state
             const existingLoadingMsg = newArrivalsGrid.querySelector('.loading-products');
             if (!existingLoadingMsg) {
                 const loadingDiv = document.createElement('div');
                 loadingDiv.className = 'loading-products';
                 loadingDiv.style.cssText = `
-                    grid-column: 1 / -1;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
@@ -493,6 +503,7 @@ const NewArrivalsProductsLoader = (function() {
                     text-align: center;
                     color: #5a3f2a;
                     font-family: 'Lato', sans-serif;
+                    width: 100%;
                 `;
                 loadingDiv.innerHTML = `
                     <div class="loading-spinner" style="
@@ -512,7 +523,7 @@ const NewArrivalsProductsLoader = (function() {
                         }
                     </style>
                 `;
-                newArrivalsGrid.insertBefore(loadingDiv, newArrivalsGrid.firstChild);
+                newArrivalsGrid.appendChild(loadingDiv);
             }
 
             // Load products from Firebase
@@ -523,10 +534,27 @@ const NewArrivalsProductsLoader = (function() {
             loadingElements.forEach(el => el.remove());
 
             if (products.length > 0) {
-                // Firebase products found - show only these
+                // Firebase products found - show in horizontal scroll layout like product categories
                 console.log('Firebase products found, showing only Firebase products');
-                const firebaseProductsHTML = products.map(product => generateProductHTML(product)).join('');
+                
+                // Clear existing content and set up horizontal scroll layout
+                newArrivalsGrid.innerHTML = '';
+                newArrivalsGrid.className = 'product-scroll-container';
+                newArrivalsGrid.style.cssText = `
+                    display: flex;
+                    gap: 30px;
+                    overflow-x: auto;
+                    overflow-y: hidden;
+                    scroll-behavior: smooth;
+                    padding: 0 20px 20px 20px;
+                    margin-bottom: 30px;
+                    width: 100%;
+                `;
+                
+                // Generate product HTML using product category design
+                const firebaseProductsHTML = products.map(product => generateProductCategoryHTML(product)).join('');
                 newArrivalsGrid.innerHTML = firebaseProductsHTML;
+                
             } else {
                 // No Firebase products found - show message
                 console.log('No products found in Firebase');
@@ -538,7 +566,7 @@ const NewArrivalsProductsLoader = (function() {
                     : 'Products will appear here once they are added through the admin panel.';
                 
                 newArrivalsGrid.innerHTML = `
-                    <div class="no-products-message" style="grid-column: 1 / -1; text-align: center; padding: 40px 20px;">
+                    <div class="no-products-message" style="text-align: center; padding: 40px 20px; width: 100%;">
                         <i class="fas fa-star" style="font-size: 48px; color: #5a3f2a; margin-bottom: 20px;"></i>
                         <h3 style="color: #5a3f2a; margin-bottom: 10px;">No Products Available</h3>
                         <p style="color: #666;">${messageText}</p>
@@ -577,9 +605,39 @@ const NewArrivalsProductsLoader = (function() {
                     ${error.message}<br>
                     <small>Check console for details. Showing default collection.</small>
                 `;
-                newArrivalsGrid.insertBefore(errorDiv, newArrivalsGrid.firstChild);
+                newArrivalsGrid.appendChild(errorDiv);
             }
         }
+    }
+
+    /**
+     * Generate HTML for a product item using product category section design
+     */
+    function generateProductCategoryHTML(product) {
+        const formattedPrice = new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            minimumFractionDigits: 0
+        }).format(product.price);
+
+        return `
+            <div class="product-item" data-product-id="${product.id}" style="background: none;">
+                <a href="#" style="text-decoration: none; color: inherit;">
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.name}" loading="lazy">
+                        <button class="add-to-wishlist" data-product-id="${product.id}" data-product-name="${product.name}" data-product-price="${product.price}" data-product-image="${product.image}">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="product-details" style="text-align: center;">
+                        <h3 class="product-name">${product.name}</h3>
+                        <div class="product-pricing">
+                            <span class="current-price">${formattedPrice}</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        `;
     }
 
     /**
@@ -626,3 +684,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1000);
 });
+
+// Make available globally for debugging
+window.NewArrivalsProductsLoader = NewArrivalsProductsLoader;

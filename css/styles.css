@@ -1345,7 +1345,7 @@ a {
 
 
 /* ========================================
-   NEW ARRIVALS EDIT SECTION - MATCHING BRIDAL DESIGN
+   NEW ARRIVALS EDIT SECTION - HORIZONTAL SCROLL DESIGN
    ======================================== */
 
 /* Main new arrivals edit section */
@@ -1381,34 +1381,39 @@ a {
     font-weight: 300;
 }
 
-/* Product grid - horizontal scrolling for desktop */
-.new-arrivals-edit .arrivals-grid {
+/* Product grid - horizontal scrolling matching product categories */
+.new-arrivals-edit .arrivals-grid,
+.new-arrivals-edit .product-scroll-container {
     display: flex;
     gap: 30px;
-    margin-bottom: 50px;
     overflow-x: auto;
     overflow-y: hidden;
     scroll-behavior: smooth;
-    padding: 0 0 20px 0;
+    padding: 0 20px 20px 20px;
+    margin-bottom: 30px;
     width: 100%;
 }
 
 /* Hide scrollbar for cleaner look */
-.new-arrivals-edit .arrivals-grid::-webkit-scrollbar {
+.new-arrivals-edit .arrivals-grid::-webkit-scrollbar,
+.new-arrivals-edit .product-scroll-container::-webkit-scrollbar {
     height: 8px;
 }
 
-.new-arrivals-edit .arrivals-grid::-webkit-scrollbar-track {
+.new-arrivals-edit .arrivals-grid::-webkit-scrollbar-track,
+.new-arrivals-edit .product-scroll-container::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 4px;
 }
 
-.new-arrivals-edit .arrivals-grid::-webkit-scrollbar-thumb {
+.new-arrivals-edit .arrivals-grid::-webkit-scrollbar-thumb,
+.new-arrivals-edit .product-scroll-container::-webkit-scrollbar-thumb {
     background: #ccc;
     border-radius: 4px;
 }
 
-.new-arrivals-edit .arrivals-grid::-webkit-scrollbar-thumb:hover {
+.new-arrivals-edit .arrivals-grid::-webkit-scrollbar-thumb:hover,
+.new-arrivals-edit .product-scroll-container::-webkit-scrollbar-thumb:hover {
     background: #999;
 }
 
